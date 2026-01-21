@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">HeraApp</string>
+    <string name="enter_your_question_here">Enter your question here</string>
+    <string name="submit">Submit</string>
+    <string name="your_response_will_appear_here">Your response will appear here!</string>
+    <string name="hellohera_string">Hello Hera</string>
+    <string name="user_greeting">Hi %1$s </string>
+    <string name="hi_user">Hi</string>
+    <string name="weekly_plan">Your Weekly Plan</string>
+    <string name="ex">Exercise</string>
+    <string name="med">Medicine</string>
+    <string name="diet_button">Diet</string>
+    <string name="appct">Circle Tracker</string>
+    <string name="home">Home</string>
+    <string name="askhera">Ask Hera</string>
+    <string name="hospitals">Nearby Hospitals</string>
+    <string name="wellbeing">Wellbeing</string>
+</resources>
