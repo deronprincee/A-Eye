@@ -144,7 +144,7 @@ fun HeraChatScreen() {
                             modifier = Modifier.align(Alignment.Center).height(100.dp)
                         )
                         Image(
-                            painter = painterResource(id = R.drawable.flower),
+                            painter = painterResource(id = R.drawable.setting),
                             contentDescription = "Hera Logo",
                             modifier = Modifier.align(Alignment.CenterStart).padding(start = 10.dp)
                                 .size(45.dp)

@@ -36,7 +36,7 @@ fun MainScreen(navController: NavController,authViewModel: AuthViewModel) {
     // Define bottom navigation items with icon and title
     val bottomNavigationItems = listOf(
         BottomNavigationItem("Home", Icons.Filled.Home),
-        BottomNavigationItem("Cycle", Icons.Filled.Favorite),
+        BottomNavigationItem("Results", Icons.Filled.Favorite),
         BottomNavigationItem("Search", Icons.Filled.Search),
         BottomNavigationItem("Hospitals", Icons.Filled.LocalHospital)
     )
@@ -46,16 +46,16 @@ fun MainScreen(navController: NavController,authViewModel: AuthViewModel) {
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
-                    // Hera logo and app name in top bar
+                    // A-Eye logo and app name in top bar
                     Box(modifier = Modifier.fillMaxWidth()) {
                         Image(
                             painter = painterResource(id = R.drawable.hera),
-                            contentDescription = "Hera Text Logo",
+                            contentDescription = "A-Eye Text Logo",
                             modifier = Modifier.align(Alignment.Center).height(100.dp)
                         )
                         Image(
-                            painter = painterResource(id = R.drawable.flower),
-                            contentDescription = "Hera Logo",
+                            painter = painterResource(id = R.drawable.setting),
+                            contentDescription = "A-Eye Logo",
                             modifier = Modifier.align(Alignment.CenterStart).padding(start = 10.dp).size(45.dp)
                         )
                     }

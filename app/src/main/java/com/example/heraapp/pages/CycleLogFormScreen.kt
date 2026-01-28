@@ -28,9 +28,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import com.example.heraapp.ui.theme.HeraBackground
-import com.example.heraapp.ui.theme.HeraBottomBar
-import com.example.heraapp.ui.theme.HeraTopBar
+import com.example.heraapp.ui.theme.AEyeBackground
+import com.example.heraapp.ui.theme.AEyeBottomBar
+import com.example.heraapp.ui.theme.AEyeTopBar
 import com.example.heraapp.ui.theme.handleBottomNavSelection
 
 @SuppressLint("DefaultLocale")
@@ -118,15 +118,15 @@ fun CycleLogFormScreen(
 
     // Added scaffold layout with top and bottom UI bars
     Scaffold(
-        topBar = { HeraTopBar() },
+        topBar = { AEyeTopBar() },
         bottomBar = {
-            HeraBottomBar(selectedItem = selectedItem) { item ->
+            AEyeBottomBar(selectedItem = selectedItem) { item ->
                 selectedItem = item
                 handleBottomNavSelection(navController, item)
             }
         }
     ) { innerPadding ->
-        HeraBackground {
+        AEyeBackground {
             Column(
                 modifier = modifier
                     .verticalScroll(rememberScrollState())

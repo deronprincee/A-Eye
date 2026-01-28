@@ -24,9 +24,9 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.geometry.Offset
 import androidx.navigation.NavController
 import com.example.heraapp.MedicationLog
-import com.example.heraapp.ui.theme.HeraBackground
-import com.example.heraapp.ui.theme.HeraBottomBar
-import com.example.heraapp.ui.theme.HeraTopBar
+import com.example.heraapp.ui.theme.AEyeBackground
+import com.example.heraapp.ui.theme.AEyeBottomBar
+import com.example.heraapp.ui.theme.AEyeTopBar
 import com.example.heraapp.ui.theme.handleBottomNavSelection
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -76,15 +76,15 @@ fun MedicationPage(navController: NavController) {
 
     // Added scaffold layout with top and bottom UI bars
     Scaffold(
-        topBar = { HeraTopBar() },
+        topBar = { AEyeTopBar() },
         bottomBar = {
-            HeraBottomBar(selectedItem = selectedItem) { newItem ->
+            AEyeBottomBar(selectedItem = selectedItem) { newItem ->
                 selectedItem = newItem
                 handleBottomNavSelection(navController, newItem)
             }
         }
     ) { innerPadding ->
-        HeraBackground {
+        AEyeBackground {
             MedicationContent(
                 modifier = Modifier
                     .verticalScroll(rememberScrollState())

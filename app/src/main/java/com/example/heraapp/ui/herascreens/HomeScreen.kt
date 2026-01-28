@@ -24,7 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.material.icons.filled.Logout
 import com.example.heraapp.AuthViewModel
 import androidx.compose.runtime.*
-import com.example.heraapp.ui.theme.HeraBackground
+import com.example.heraapp.ui.theme.AEyeBackground
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -49,7 +49,7 @@ fun HomeScreen( modifier: Modifier = Modifier, authViewModel: AuthViewModel, nav
         }
     }
 
-    HeraBackground {
+    AEyeBackground {
         Column(
             modifier = modifier.padding(24.dp),
             verticalArrangement = Arrangement.Top,

@@ -51,7 +51,7 @@ fun HeraFlowerReveal(
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Image(
-                painter = painterResource(id = R.drawable.flower),
+                painter = painterResource(id = R.drawable.setting),
                 contentDescription = "Hera Flower Logo",
                 modifier = Modifier
                     .size(150.dp)

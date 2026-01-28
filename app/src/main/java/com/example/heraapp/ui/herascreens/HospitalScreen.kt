@@ -98,14 +98,14 @@ fun HospitalScreen(modifier: Modifier = Modifier, navController: NavController) 
 
     // Scaffolds layout with top and bottom UI bars
     Scaffold(
-        topBar = { HeraTopBar() },
+        topBar = { AEyeTopBar() },
         bottomBar = {
-            HeraBottomBar(selectedItem = "Hospitals") { newItem ->
+            AEyeBottomBar(selectedItem = "Hospitals") { newItem ->
                 handleBottomNavSelection(navController, newItem)
             }
         }
     ) { innerPadding ->
-        HeraBackground {
+        AEyeBackground {
             Box(modifier = modifier.padding(innerPadding).fillMaxSize()) {
                 // Google Map showing user and hospital markers
                 GoogleMap(

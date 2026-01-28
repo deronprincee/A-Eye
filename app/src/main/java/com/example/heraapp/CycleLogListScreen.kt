@@ -12,9 +12,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.heraapp.ui.theme.HeraBackground
-import com.example.heraapp.ui.theme.HeraBottomBar
-import com.example.heraapp.ui.theme.HeraTopBar
+import com.example.heraapp.ui.theme.AEyeBackground
+import com.example.heraapp.ui.theme.AEyeBottomBar
+import com.example.heraapp.ui.theme.AEyeTopBar
 import com.example.heraapp.ui.theme.handleBottomNavSelection
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -59,15 +59,15 @@ fun CycleLogListScreen(navController: NavController) {
 
     //UI for top and bottom bar
     Scaffold(
-        topBar = { HeraTopBar() },
+        topBar = { AEyeTopBar() },
         bottomBar = {
-            HeraBottomBar(selectedItem = selectedItem) { newItem ->
+            AEyeBottomBar(selectedItem = selectedItem) { newItem ->
                 selectedItem = newItem
                 handleBottomNavSelection(navController, newItem)
             }
         }
     ) { innerPadding ->
-        HeraBackground {
+        AEyeBackground {
             Column(
                 modifier = Modifier
                     .verticalScroll(rememberScrollState())

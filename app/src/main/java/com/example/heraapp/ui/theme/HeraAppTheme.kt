@@ -22,37 +22,37 @@ import com.example.heraapp.R
 // Composable for Hera top bar with centered logo and app name
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HeraTopBar() {
+fun AEyeTopBar() {
     CenterAlignedTopAppBar(
         title = {
             Box(modifier = Modifier.fillMaxWidth()) {
                 Image(
                     painter = painterResource(id = R.drawable.hera),
-                    contentDescription = "Hera Text Logo",
+                    contentDescription = "A-Eye Text Logo",
                     modifier = Modifier.align(Alignment.Center).height(100.dp)
                 )
                 Image(
-                    painter = painterResource(id = R.drawable.flower),
-                    contentDescription = "Hera Logo",
+                    painter = painterResource(id = R.drawable.setting),
+                    contentDescription = "A-Eye Logo",
                     modifier = Modifier.align(Alignment.CenterStart).padding(start = 10.dp).size(45.dp)
                 )
             }
         },
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color(0xFFF89AAC))
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = MaterialTheme.colorScheme.primary)
     )
 }
 
 // Composable for bottom navigation bar for main navigation
 @Composable
-fun HeraBottomBar(
+fun AEyeBottomBar(
     selectedItem: String,
     onItemSelected: (String) -> Unit
 ) {
     val bottomNavigationItems = listOf(
         BottomNavigationItem("Home", Icons.Filled.Home),
-        BottomNavigationItem("Cycle", Icons.Filled.Favorite),
+        BottomNavigationItem("Test Results", Icons.Filled.Favorite),
         BottomNavigationItem("Search", Icons.Filled.Search),
-        BottomNavigationItem("Hospitals", Icons.Filled.LocalHospital)
+        BottomNavigationItem("Eye Clinics", Icons.Filled.LocalHospital)
     )
 
     BottomAppBar {
@@ -71,7 +71,7 @@ fun HeraBottomBar(
 fun handleBottomNavSelection(navController: NavController, selectedItem: String) {
     when (selectedItem) {
         "Home" -> navController.navigate("home")
-        "Cycle" -> navController.navigate("cyclelogs")
+        "Results" -> navController.navigate("results")
         "Search" -> navController.navigate("search")
         "Hospitals" -> navController.navigate("hospitals")
     }
@@ -79,7 +79,7 @@ fun handleBottomNavSelection(navController: NavController, selectedItem: String)
 
 // Composable for background image
 @Composable
-fun HeraBackground(content: @Composable () -> Unit) {
+fun AEyeBackground(content: @Composable () -> Unit) {
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
             painter = painterResource(id = R.drawable.hera_background),

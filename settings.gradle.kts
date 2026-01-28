@@ -19,5 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "HeraApp"
+rootProject.name = "A-Eye"
 include(":app")
