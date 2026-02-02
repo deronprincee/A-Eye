@@ -1,40 +1,21 @@
 {
   "project_info": {
-    "project_number": "878897111080",
-    "project_id": "heraapp-944e0",
-    "storage_bucket": "heraapp-944e0.firebasestorage.app"
+    "project_number": "447900115531",
+    "project_id": "a-eye-auth",
+    "storage_bucket": "a-eye-auth.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:878897111080:android:07d3368ed68fbe57f1551d",
+        "mobilesdk_app_id": "1:447900115531:android:52fc45eecf2042db3fa3ce",
         "android_client_info": {
-          "package_name": "com.example.firebaseauthheraapp"
+          "package_name": "com.example.aeye"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBbD2lhYDEAfMBpTZ4ZqaNfiJAB_Dh8klQ"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:878897111080:android:bcd75ce149c25dedf1551d",
-        "android_client_info": {
-          "package_name": "com.example.heraapp"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBbD2lhYDEAfMBpTZ4ZqaNfiJAB_Dh8klQ"
+          "current_key": "AIzaSyBPA96KzL-jXa2E7IIIeEVethnpVOOkFss"
         }
       ],
       "services": {

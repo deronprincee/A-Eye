@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="com.example.heraapp" />
-                  <option name="mobileSdkAppId" value="1:878897111080:android:bcd75ce149c25dedf1551d" />
-                  <option name="projectId" value="heraapp-944e0" />
-                  <option name="projectNumber" value="878897111080" />
+                  <option name="appId" value="com.example.aeye" />
+                  <option name="mobileSdkAppId" value="1:447900115531:android:52fc45eecf2042db3fa3ce" />
+                  <option name="projectId" value="a-eye-auth" />
+                  <option name="projectNumber" value="447900115531" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

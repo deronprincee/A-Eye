@@ -9,11 +9,11 @@ plugins {
 
 
 android {
-    namespace = "com.example.heraapp"
+    namespace = "com.example.aeye"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.heraapp"
+        applicationId = "com.example.aeye"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
@@ -52,6 +52,9 @@ android {
 dependencies {
 
     implementation("com.google.android.material:material:1.9.0")
+    implementation(platform("com.google.firebase:firebase-bom:34.8.0"))
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-auth-ktx")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

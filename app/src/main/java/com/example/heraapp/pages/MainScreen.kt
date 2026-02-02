@@ -29,7 +29,10 @@ import com.example.heraapp.ui.herascreens.SearchScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(navController: NavController,authViewModel: AuthViewModel) {
+fun MainScreen(
+    navController: NavController,
+    authViewModel: AuthViewModel,
+    modifier: Modifier = Modifier) {
     // Track the currently selected bottom navigation item
     val selectedItem = remember { mutableStateOf("Home") }
 
@@ -78,7 +81,7 @@ fun MainScreen(navController: NavController,authViewModel: AuthViewModel) {
                             // Navigate to the appropriate screen
                             when (item.title) {
                                 "Home" -> navController.navigate("home")
-                                "Cycle" -> navController.navigate("cyclelogs")
+                                "Results" -> navController.navigate("cyclelogs")
                                 "Search" -> navController.navigate("search")
                                 "Hospitals" -> navController.navigate("hospitals")
                             }
@@ -91,11 +94,11 @@ fun MainScreen(navController: NavController,authViewModel: AuthViewModel) {
         // Display content based on selected navigation item
         when (selectedItem.value) {
             "Home" -> HomeScreen(
-                modifier = Modifier.padding(innerPadding),
+
                 authViewModel = authViewModel,
                 navController = navController
             )
-            "Cycle" -> CycleLogListScreen(
+            "Results" -> CycleLogListScreen(
                 navController = navController
             )
             "Search" -> SearchScreen(modifier = Modifier.padding(innerPadding))

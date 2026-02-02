@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
 
-package com.example.heraapp
+package com.example.aeye
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.widget.Toast
