@@ -118,4 +118,5 @@ dependencies {
     debugImplementation (libs.ui.test.manifest)
     androidTestImplementation (libs.androidx.ui.test.junit4.v151)
     debugImplementation (libs.androidx.ui.test.manifest.v151)
+    implementation("io.coil-kt:coil-compose:2.6.0")
 }
