@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
-import com.example.aeye.ui.theme.HeraAppTheme
+import com.example.aeye.ui.theme.AeyeTheme
 import androidx.compose.foundation.Image
 import androidx.compose.ui.res.painterResource
 
@@ -21,7 +21,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         val authViewModel : AuthViewModel by viewModels()
         setContent {
-            HeraAppTheme {
+            AeyeTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     MyAppNavigation(modifier = Modifier.padding(innerPadding), authViewModel = authViewModel)
 

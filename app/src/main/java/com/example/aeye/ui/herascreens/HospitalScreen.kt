@@ -10,7 +10,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
 import androidx.navigation.NavController
-import com.example.aeye.ui.theme.*
+import com.example.aeye.ui.components.AEyeBackground
+import com.example.aeye.ui.components.AEyeBottomBar
+import com.example.aeye.ui.components.AEyeTopBar
+import com.example.aeye.ui.components.handleBottomNavSelection
 import com.google.accompanist.permissions.*
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.model.*

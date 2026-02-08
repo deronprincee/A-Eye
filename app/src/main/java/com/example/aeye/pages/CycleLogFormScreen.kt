@@ -28,10 +28,10 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import com.example.aeye.ui.theme.AEyeBackground
-import com.example.aeye.ui.theme.AEyeBottomBar
-import com.example.aeye.ui.theme.AEyeTopBar
-import com.example.aeye.ui.theme.handleBottomNavSelection
+import com.example.aeye.ui.components.AEyeBackground
+import com.example.aeye.ui.components.AEyeBottomBar
+import com.example.aeye.ui.components.AEyeTopBar
+import com.example.aeye.ui.components.handleBottomNavSelection
 
 @SuppressLint("DefaultLocale")
 @OptIn(ExperimentalMaterial3Api::class)

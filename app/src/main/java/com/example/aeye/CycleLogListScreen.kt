@@ -12,10 +12,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.aeye.ui.theme.AEyeBackground
-import com.example.aeye.ui.theme.AEyeBottomBar
-import com.example.aeye.ui.theme.AEyeTopBar
-import com.example.aeye.ui.theme.handleBottomNavSelection
+import com.example.aeye.ui.components.AEyeBackground
+import com.example.aeye.ui.components.AEyeBottomBar
+import com.example.aeye.ui.components.AEyeTopBar
+import com.example.aeye.ui.components.handleBottomNavSelection
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat

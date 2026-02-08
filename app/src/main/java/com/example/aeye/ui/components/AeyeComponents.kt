@@ -1,4 +1,4 @@
-package com.example.aeye.ui.theme
+package com.example.aeye.ui.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
