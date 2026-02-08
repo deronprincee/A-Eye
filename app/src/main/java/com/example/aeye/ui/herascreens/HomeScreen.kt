@@ -1,104 +1,101 @@
 package com.example.aeye.ui.herascreens
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import com.example.aeye.R
-import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import com.example.aeye.BottomNavigationItem
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.graphics.Color
-import com.example.aeye.AuthViewModel
-import com.example.aeye.CycleLogListScreen
 
-@OptIn(ExperimentalMaterial3Api::class)
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+
+/**
+ * HomeScreen is ONLY the scrollable content.
+ * No Scaffold here -> prevents recursion/ANR.
+ * No heavy images -> reduces memory pressure.
+ */
 @Composable
 fun HomeScreen(
-    navController: NavController,
-    authViewModel: AuthViewModel,
-    modifier: Modifier = Modifier) {
-    // Track the currently selected bottom navigation item
-    val selectedItem = remember { mutableStateOf("Home") }
-
-    // Define bottom navigation items with icon and title
-    val bottomNavigationItems = listOf(
-        BottomNavigationItem("Home", Icons.Filled.Home),
-        BottomNavigationItem("Results", Icons.Filled.Favorite),
-        BottomNavigationItem("Search", Icons.Filled.Search),
-        BottomNavigationItem("Hospitals", Icons.Filled.LocalHospital)
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
+    onTestClick: (route: String) -> Unit
+) {
+    // Add or rename tests anytime
+    val tests = listOf(
+        TestItem("Visual Acuity Test", "test_visual_acuity"),
+        TestItem("Colour Vision Test", "test_colour_vision"),
+        TestItem("Astigmatism Test", "test_astigmatism"),
+        TestItem("Contrast Sensitivity", "test_contrast"),
+        TestItem("Peripheral Vision", "test_peripheral"),
+        TestItem("Eye Strain Check", "test_eye_strain"),
+        TestItem("Night Vision Check", "test_night_vision"),
+        TestItem("Dry Eye Check", "test_dry_eye"),
+        TestItem("Focus & Clarity", "test_focus_clarity")
     )
 
-    // UI with top bar and bottom navigation
-    Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    // A-Eye logo and app name in top bar
-                    Box(modifier = Modifier.fillMaxWidth()) {
-                        Image(
-                            painter = painterResource(id = R.drawable.hera),
-                            contentDescription = "A-Eye Text Logo",
-                            modifier = Modifier.align(Alignment.Center).height(100.dp)
-                        )
-                        Image(
-                            painter = painterResource(id = R.drawable.setting),
-                            contentDescription = "A-Eye Logo",
-                            modifier = Modifier.align(Alignment.CenterStart).padding(start = 10.dp).size(45.dp)
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color(0xFFF89AAC)
-                )
+    LazyColumn(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp),
+        contentPadding = PaddingValues(
+            top = contentPadding.calculateTopPadding() + 16.dp,
+            bottom = contentPadding.calculateBottomPadding() + 24.dp
+        ),
+        verticalArrangement = Arrangement.spacedBy(14.dp)
+    ) {
+        item {
+            Text(
+                text = "Choose a Test",
+                style = MaterialTheme.typography.headlineSmall
             )
-        },
-        // Render each item in bottom navigation
-        bottomBar = {
-            BottomAppBar {
-                bottomNavigationItems.forEach { item ->
-                    NavigationBarItem(
-                        icon = { Icon(item.icon, contentDescription = item.title) },
-                        label = { Text(item.title) },
-                        selected = selectedItem.value == item.title,
-                        onClick = {
-                            selectedItem.value = item.title
-                            // Navigate to the appropriate screen
-                            when (item.title) {
-                                "Home" -> navController.navigate("home")
-                                "Cycle" -> navController.navigate("cyclelogs")
-                                "Search" -> navController.navigate("search")
-                                "Hospitals" -> navController.navigate("hospitals")
-                            }
-                        }
-                    )
-                }
-            }
+            Spacer(modifier = Modifier.height(6.dp))
+            Text(
+                text = "Scroll to explore available eye tests.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
-    ) { innerPadding ->
-        // Display content based on selected navigation item
-        when (selectedItem.value) {
-            "Home" -> HomeScreen(
-                modifier = Modifier.padding(innerPadding),
-                authViewModel = authViewModel,
-                navController = navController
+
+        items(tests) { test ->
+            LargeCircleTestButton(
+                title = test.title,
+                onClick = { onTestClick(test.route) }
             )
-            "Cycle" -> CycleLogListScreen(
-                navController = navController
+        }
+    }
+}
+
+private data class TestItem(
+    val title: String,
+    val route: String
+)
+
+@Composable
+private fun LargeCircleTestButton(
+    title: String,
+    onClick: () -> Unit
+) {
+    // Large circular “button” using Surface for Material styling
+    Surface(
+        onClick = onClick,
+        shape = CircleShape,
+        tonalElevation = 2.dp,
+        shadowElevation = 2.dp,
+        color = MaterialTheme.colorScheme.primaryContainer,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(92.dp)
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onPrimaryContainer
             )
-            "Search" -> SearchScreen(modifier = Modifier.padding(innerPadding))
-            "Hospitals" -> HospitalScreen(navController = navController)
         }
     }
 }

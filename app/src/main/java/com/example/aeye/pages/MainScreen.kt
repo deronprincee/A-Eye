@@ -1,107 +1,122 @@
 package com.example.aeye.pages
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.aeye.R
-import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import com.example.aeye.BottomNavigationItem
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.graphics.Color
-import com.example.aeye.AuthViewModel
-import com.example.aeye.CycleLogListScreen
 import com.example.aeye.ui.herascreens.HomeScreen
-import com.example.aeye.ui.herascreens.HospitalScreen
-import com.example.aeye.ui.herascreens.SearchScreen
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.material.icons.filled.*
 
+
+/**
+ * MainScreen owns the Scaffold (TopBar + BottomBar).
+ * HomeScreen is ONLY content (no Scaffold) to prevent recursion/ANR.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
     navController: NavController,
-    authViewModel: AuthViewModel,
-    modifier: Modifier = Modifier) {
-    // Track the currently selected bottom navigation item
-    val selectedItem = remember { mutableStateOf("Home") }
+    onOpenSettings: () -> Unit = { /* navController.navigate("settings") later */ },
+    onTabSelected: (BottomTab) -> Unit = { /* optional callback */ }
+) {
+    var selectedTab by rememberSaveable { mutableStateOf(BottomTab.Home) }
 
-    // Define bottom navigation items with icon and title
-    val bottomNavigationItems = listOf(
-        BottomNavigationItem("Home", Icons.Filled.Home),
-        BottomNavigationItem("Results", Icons.Filled.Favorite),
-        BottomNavigationItem("Search", Icons.Filled.Search),
-        BottomNavigationItem("Hospitals", Icons.Filled.LocalHospital)
-    )
-
-    // UI with top bar and bottom navigation
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
-                    // A-Eye logo and app name in top bar
-                    Box(modifier = Modifier.fillMaxWidth()) {
-                        Image(
-                            painter = painterResource(id = R.drawable.hera),
-                            contentDescription = "A-Eye Text Logo",
-                            modifier = Modifier.align(Alignment.Center).height(100.dp)
-                        )
-                        Image(
+                    // Center logo
+                    Image(
+                        painter = painterResource(id = R.drawable.logo),
+                        contentDescription = "App Logo",
+                        modifier = Modifier.size(140.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                },
+                actions = {
+                    IconButton(onClick = onOpenSettings) {
+                        Icon(
                             painter = painterResource(id = R.drawable.setting),
-                            contentDescription = "A-Eye Logo",
-                            modifier = Modifier.align(Alignment.CenterStart).padding(start = 10.dp).size(45.dp)
+                            contentDescription = "Settings",
+                            modifier = Modifier.size(24.dp)
                         )
                     }
-                },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color(0xFFF89AAC)
-                )
+                }
             )
         },
-        // Render each item in bottom navigation
         bottomBar = {
-            BottomAppBar {
-                bottomNavigationItems.forEach { item ->
+            NavigationBar {
+                BottomTab.entries.forEach { tab ->
                     NavigationBarItem(
-                        icon = { Icon(item.icon, contentDescription = item.title) },
-                        label = { Text(item.title) },
-                        selected = selectedItem.value == item.title,
+                        selected = selectedTab == tab,
                         onClick = {
-                            selectedItem.value = item.title
-                            // Navigate to the appropriate screen
-                            when (item.title) {
-                                "Home" -> navController.navigate("home")
-                                "Results" -> navController.navigate("cyclelogs")
-                                "Search" -> navController.navigate("search")
-                                "Hospitals" -> navController.navigate("hospitals")
-                            }
-                        }
+                            selectedTab = tab
+                            onTabSelected(tab)
+
+                            // Optional: if you want real navigation later, do it here safely:
+                            // navController.navigate(tab.route) {
+                            //     launchSingleTop = true
+                            //     restoreState = true
+                            //     popUpTo(navController.graph.startDestinationId) { saveState = true }
+                            // }
+                        },
+                        icon = {
+                            // Placeholder icons — you said you will replace them
+                            Icon(
+                                imageVector = tab.placeholderIcon,
+                                contentDescription = tab.label
+                            )
+                        },
+                        label = { Text(tab.label) }
                     )
                 }
             }
         }
     ) { innerPadding ->
-        // Display content based on selected navigation item
-        when (selectedItem.value) {
-            "Home" -> HomeScreen(
+        // Main content switches by selected bottom tab (no nav loops)
+        when (selectedTab) {
+            BottomTab.Home -> HomeScreen(
+                modifier = Modifier,
+                contentPadding = innerPadding,
+                onTestClick = { testRoute ->
+                    // We'll create test pages later. For now, safe call:
+                    // navController.navigate(testRoute)
+                }
+            )
 
-                authViewModel = authViewModel,
-                navController = navController
-            )
-            "Results" -> CycleLogListScreen(
-                navController = navController
-            )
-            "Search" -> SearchScreen(modifier = Modifier.padding(innerPadding))
-            "Hospitals" -> HospitalScreen(navController = navController)
+            BottomTab.Results -> PlaceholderScreen("Results (Coming Soon)")
+            BottomTab.Chat -> PlaceholderScreen("Chat (Coming Soon)")
+            BottomTab.Clinics -> PlaceholderScreen("Clinics (Coming Soon)")
         }
+    }
+}
+
+/** Bottom tabs */
+enum class BottomTab(
+    val label: String,
+    val placeholderIcon: androidx.compose.ui.graphics.vector.ImageVector,
+    val route: String
+) {
+    Home("Home", androidx.compose.material.icons.Icons.Filled.Home, "home"),
+    Results("Results", androidx.compose.material.icons.Icons.Filled.Favorite, "results"),
+    Chat("Chat", androidx.compose.material.icons.Icons.Filled.Chat, "chat"),
+    Clinics("Clinics", androidx.compose.material.icons.Icons.Filled.LocalHospital, "clinics")
+}
+
+@Composable
+private fun PlaceholderScreen(title: String) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize(),
+        contentAlignment = androidx.compose.ui.Alignment.Center
+    ) {
+        Text(title, style = MaterialTheme.typography.titleLarge)
     }
 }

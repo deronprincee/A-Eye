@@ -125,7 +125,7 @@ fun HeraChatScreen() {
     // Layout for chatbot UI
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
-            painter = painterResource(id = R.drawable.bg_aeye),
+            painter = painterResource(id = R.drawable.aeye_bg),
             contentDescription = "Background",
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()

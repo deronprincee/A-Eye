@@ -31,7 +31,7 @@ fun MyAppNavigation(modifier: Modifier = Modifier, authViewModel: AuthViewModel)
             SignupPage(navController, authViewModel)
         }
         composable("home") {
-            MainScreen(navController, authViewModel)
+            MainScreen(navController = navController)
         }
         composable("cyclelogs") {
             CycleLogListScreen(navController)

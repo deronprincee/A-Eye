@@ -65,7 +65,7 @@ fun LoginPage(
 
         // Background image
         Image(
-            painter = painterResource(R.drawable.bg_aeye),
+            painter = painterResource(R.drawable.aeye_bg),
             contentDescription = null,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop

@@ -81,7 +81,7 @@ fun handleBottomNavSelection(navController: NavController, selectedItem: String)
 fun AEyeBackground(content: @Composable () -> Unit) {
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
-            painter = painterResource(id = R.drawable.bg_aeye),
+            painter = painterResource(id = R.drawable.aeye_bg),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize()
