@@ -59,13 +59,7 @@ fun CycleLogListScreen(navController: NavController) {
 
     //UI for top and bottom bar
     Scaffold(
-        topBar = { AEyeTopBar(onSettingsClick = { /* nav later */ }) },
-        bottomBar = {
-            AEyeBottomBar(selectedTab = selectedItem) { newItem ->
-                selectedItem = newItem
-                handleBottomNavSelection(navController, newItem)
-            }
-        }
+        topBar = { AEyeTopBar(onSettingsClick = { /* nav later */ }) }
     ) { innerPadding ->
         Column(
             modifier = Modifier

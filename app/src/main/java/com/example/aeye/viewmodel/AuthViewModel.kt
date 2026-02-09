@@ -1,7 +1,5 @@
 package com.example.aeye.viewmodel
 
-import kotlinx.coroutines.flow.MutableStateFlow
-import  kotlinx.coroutines.flow.StateFlow
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -13,9 +11,6 @@ class AuthViewModel : ViewModel(){
 
     // Initialize Firebase Authentication instance
     private val auth : FirebaseAuth = FirebaseAuth.getInstance()
-    //Initialize tracking for login state in real-time
-    private val _isLoggedIn = MutableStateFlow(false)
-    val isLoggedIn: StateFlow<Boolean> = _isLoggedIn
     // Initialize liveData to track authentication state and respond in UI
     private val _authState = MutableLiveData<AuthState>()
     val authState: LiveData<AuthState> = _authState
@@ -23,22 +18,6 @@ class AuthViewModel : ViewModel(){
     // Checks current user status when ViewModel is created
     init{
         checkAuthStatus()
-        _isLoggedIn.value = auth.currentUser != null
-    }
-
-    // Logs in a user and updates login state
-    fun loginUser(email: String, password: String) {
-        auth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener { task ->
-                _isLoggedIn.value = task.isSuccessful
-            }
-    }
-
-    // Signs out the current user and updates auth state
-    fun logoutUser() {
-        auth.signOut()
-        _authState.postValue(AuthState.Unauthenticated)
-        _isLoggedIn.value = false
     }
 
     // Determines if a user is already logged in and updates state accordingly
@@ -53,13 +32,13 @@ class AuthViewModel : ViewModel(){
     // Determines if a user is already logged in and updates state accordingly
     fun login(email : String, password : String){
         if(email.isEmpty() || password.isEmpty()){
-            _authState.postValue(AuthState.Error("Email or password cant be empty"))
+            _authState.postValue(AuthState.Error("Email or password can't be empty"))
             return
-
         }
+
         _authState.postValue(AuthState.Loading)
 
-        auth.signInWithEmailAndPassword(email,password)
+        auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener{task->
                 if(task.isSuccessful){
                     _authState.postValue(AuthState.Authenticated)
@@ -71,19 +50,18 @@ class AuthViewModel : ViewModel(){
                 }
 
             }
-
     }
 
     // Registers a new user and creates their Firestore profile document
-    fun signup(email : String, password : String,name:String){
+    fun signup(email : String, password : String, name:String){
         if(email.isEmpty() || password.isEmpty()||name.isEmpty()){
             _authState.postValue(AuthState.Error("All fields are required"))
             return
-
         }
+
         _authState.postValue(AuthState.Loading)
 
-        auth.createUserWithEmailAndPassword(email,password)
+        auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     val userId = auth.currentUser?.uid ?: return@addOnCompleteListener
@@ -122,8 +100,6 @@ class AuthViewModel : ViewModel(){
     fun getUserId(): String? {
         return auth.currentUser?.uid
     }
-
-
 }
 
 // Class for different authentication states for UI rendering

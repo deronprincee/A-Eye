@@ -7,8 +7,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.aeye.ui.screens.LoginPage
 import com.example.aeye.ui.screens.SignupPage
-import androidx.compose.runtime.collectAsState
-import  androidx.compose.runtime.getValue
 import androidx.navigation.navArgument
 import com.example.aeye.viewmodel.AuthViewModel
 import com.example.aeye.ui.screens.CycleLogListScreen
@@ -19,12 +17,15 @@ import com.example.aeye.ui.screens.ExercisePage
 import com.example.aeye.ui.screens.MedicationPage
 import com.example.aeye.ui.screens.HospitalScreen
 import com.example.aeye.ui.screens.SearchScreen
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun MyAppNavigation(modifier: Modifier = Modifier, authViewModel: AuthViewModel) {
     val navController = rememberNavController()
-    val isLoggedIn by authViewModel.isLoggedIn.collectAsState()
-    val startDestination =  "login"
+    val startDestination =
+        if (FirebaseAuth.getInstance().currentUser != null) "home"
+        else "login"
+
     NavHost(navController = navController, startDestination = startDestination) {
         composable("login") {
             LoginPage(navController, authViewModel)
