@@ -1,4 +1,4 @@
-package com.example.aeye
+package com.example.aeye.data.model
 
 data class Symptoms(
     val mood: String,         // User's emotional state

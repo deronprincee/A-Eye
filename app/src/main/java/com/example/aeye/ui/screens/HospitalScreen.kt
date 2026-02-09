@@ -1,4 +1,4 @@
-package com.example.aeye.ui.herascreens
+package com.example.aeye.ui.screens
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -10,10 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.app.ActivityCompat
 import androidx.navigation.NavController
-import com.example.aeye.ui.components.AEyeBackground
-import com.example.aeye.ui.components.AEyeBottomBar
-import com.example.aeye.ui.components.AEyeTopBar
-import com.example.aeye.ui.components.handleBottomNavSelection
+import com.example.aeye.ui.components.*
 import com.google.accompanist.permissions.*
 import com.google.android.gms.location.*
 import com.google.android.gms.maps.model.*
@@ -101,37 +98,31 @@ fun HospitalScreen(modifier: Modifier = Modifier, navController: NavController) 
 
     // Scaffolds layout with top and bottom UI bars
     Scaffold(
-        topBar = { AEyeTopBar() },
-        bottomBar = {
-            AEyeBottomBar(selectedItem = "Hospitals") { newItem ->
-                handleBottomNavSelection(navController, newItem)
-            }
-        }
-    ) { innerPadding ->
-        AEyeBackground {
-            Box(modifier = modifier.padding(innerPadding).fillMaxSize()) {
-                // Google Map showing user and hospital markers
-                GoogleMap(
-                    modifier = Modifier.fillMaxSize(),
-                    cameraPositionState = cameraPositionState
-                ) {
-                    // Marker for user location
+        topBar = { AEyeTopBar(onSettingsClick = { /* nav later */ }) }
+    ) {
+        innerPadding ->
+        Box(modifier = modifier.padding(innerPadding).fillMaxSize()) {
+            // Google Map showing user and hospital markers
+            GoogleMap(
+                modifier = Modifier.fillMaxSize(),
+                cameraPositionState = cameraPositionState
+            ) {
+                // Marker for user location
+                Marker(
+                    state = MarkerState(position = userLocation ?: fallbackLocation),
+                    title = "You are here"
+                )
+                // Markers for each hospital, with custom color based on type
+                hospitalList.forEach { hospital ->
                     Marker(
-                        state = MarkerState(position = userLocation ?: fallbackLocation),
-                        title = "You are here"
+                        state = MarkerState(position = hospital.location),
+                        title = hospital.name,
+                        snippet = if (hospital.isWomenSpecific) "Women-Focused Hospital" else "General Hospital",
+                        icon = if (hospital.isWomenSpecific)
+                            BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)
+                        else
+                            BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE)
                     )
-                    // Markers for each hospital, with custom color based on type
-                    hospitalList.forEach { hospital ->
-                        Marker(
-                            state = MarkerState(position = hospital.location),
-                            title = hospital.name,
-                            snippet = if (hospital.isWomenSpecific) "Women-Focused Hospital" else "General Hospital",
-                            icon = if (hospital.isWomenSpecific)
-                                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)
-                            else
-                                BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE)
-                        )
-                    }
                 }
             }
         }

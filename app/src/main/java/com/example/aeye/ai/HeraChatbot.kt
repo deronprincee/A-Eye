@@ -1,5 +1,8 @@
-package com.example.aeye
+package com.example.aeye.ai
 
+import com.example.aeye.data.model.CycleData
+import com.example.aeye.data.model.CycleLog
+import com.example.aeye.data.model.Symptoms
 import java.text.SimpleDateFormat
 import java.util.*
 

@@ -1,22 +1,24 @@
-package com.example.aeye
+package com.example.aeye.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.aeye.pages.LoginPage
-import com.example.aeye.pages.SignupPage
+import com.example.aeye.ui.screens.LoginPage
+import com.example.aeye.ui.screens.SignupPage
 import androidx.compose.runtime.collectAsState
 import  androidx.compose.runtime.getValue
 import androidx.navigation.navArgument
-import com.example.aeye.pages.MainScreen
-import com.example.aeye.pages.CycleLogFormScreen
-import com.example.aeye.pages.DietPage
-import com.example.aeye.pages.ExercisePage
-import com.example.aeye.pages.MedicationPage
-import com.example.aeye.ui.herascreens.HospitalScreen
-import com.example.aeye.ui.herascreens.SearchScreen
+import com.example.aeye.viewmodel.AuthViewModel
+import com.example.aeye.ui.screens.CycleLogListScreen
+import com.example.aeye.ui.screens.MainScreen
+import com.example.aeye.ui.screens.CycleLogFormScreen
+import com.example.aeye.ui.screens.DietPage
+import com.example.aeye.ui.screens.ExercisePage
+import com.example.aeye.ui.screens.MedicationPage
+import com.example.aeye.ui.screens.HospitalScreen
+import com.example.aeye.ui.screens.SearchScreen
 
 @Composable
 fun MyAppNavigation(modifier: Modifier = Modifier, authViewModel: AuthViewModel) {

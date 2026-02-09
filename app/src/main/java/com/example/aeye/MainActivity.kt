@@ -10,8 +10,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import com.example.aeye.ui.theme.AeyeTheme
-import androidx.compose.foundation.Image
-import androidx.compose.ui.res.painterResource
+import com.example.aeye.navigation.MyAppNavigation
+import com.example.aeye.viewmodel.AuthViewModel
 
 // Sets up the main UI
 class MainActivity : ComponentActivity() {

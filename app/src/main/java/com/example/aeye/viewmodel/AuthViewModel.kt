@@ -1,4 +1,4 @@
-package com.example.aeye
+package com.example.aeye.viewmodel
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import  kotlinx.coroutines.flow.StateFlow
@@ -66,7 +66,8 @@ class AuthViewModel : ViewModel(){
 
                 }else{
                     _authState.postValue(
-                        AuthState.Error(task.exception?.message ?: "Something went wrong"))
+                        AuthState.Error(task.exception?.message ?: "Something went wrong")
+                    )
                 }
 
             }
@@ -102,7 +103,11 @@ class AuthViewModel : ViewModel(){
                             _authState.postValue(AuthState.Error("Signup succeeded but profile save failed."))
                         }
                 } else {
-                    _authState.postValue(AuthState.Error(task.exception?.message ?: "Signup failed."))
+                    _authState.postValue(
+                        AuthState.Error(
+                            task.exception?.message ?: "Signup failed."
+                        )
+                    )
                 }
             }
     }

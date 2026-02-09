@@ -1,5 +1,8 @@
-package com.example.aeye
+package com.example.aeye.data
 import android.util.Log
+import com.example.aeye.data.model.CycleData
+import com.example.aeye.data.model.CycleLog
+import com.example.aeye.data.model.Symptoms
 import com.google.firebase.firestore.FirebaseFirestore
 
 class Firestore {

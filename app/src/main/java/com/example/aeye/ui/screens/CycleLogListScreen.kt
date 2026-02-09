@@ -1,4 +1,4 @@
-package com.example.aeye
+package com.example.aeye.ui.screens
 
 import androidx.compose.foundation.layout.*
 
@@ -12,7 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.aeye.ui.components.AEyeBackground
+import com.example.aeye.data.model.CycleLog
 import com.example.aeye.ui.components.AEyeBottomBar
 import com.example.aeye.ui.components.AEyeTopBar
 import com.example.aeye.ui.components.handleBottomNavSelection
@@ -59,70 +59,68 @@ fun CycleLogListScreen(navController: NavController) {
 
     //UI for top and bottom bar
     Scaffold(
-        topBar = { AEyeTopBar() },
+        topBar = { AEyeTopBar(onSettingsClick = { /* nav later */ }) },
         bottomBar = {
-            AEyeBottomBar(selectedItem = selectedItem) { newItem ->
+            AEyeBottomBar(selectedTab = selectedItem) { newItem ->
                 selectedItem = newItem
                 handleBottomNavSelection(navController, newItem)
             }
         }
     ) { innerPadding ->
-        AEyeBackground {
-            Column(
-                modifier = Modifier
-                    .verticalScroll(rememberScrollState())
-                    .padding(innerPadding)
-                    .padding(24.dp)
+        Column(
+            modifier = Modifier
+                .verticalScroll(rememberScrollState())
+                .padding(innerPadding)
+                .padding(24.dp)
+        ) {
+            // Header text
+            Text(
+                text = "Your Cycle Logs",
+                style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
+                color = Color(0xFFD6336C)
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Button to navigate to form
+            Button(
+                onClick = { navController.navigate("cyclelogform") },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF6A9B2))
             ) {
-                // Header text
-                Text(
-                    text = "Your Cycle Logs",
-                    style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.Bold),
-                    color = Color(0xFFD6336C)
-                )
+                Text("Log a New Cycle", color = Color.White)
+            }
 
-                Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(5.dp))
 
-                // Button to navigate to form
-                Button(
-                    onClick = { navController.navigate("cyclelogform") },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF6A9B2))
-                ) {
-                    Text("Log a New Cycle", color = Color.White)
-                }
-
-                Spacer(modifier = Modifier.height(5.dp))
-
-                if (isLoading) {
-                    // Show loading spinner
-                    CircularProgressIndicator(color = Color(0xFFF48FB1))
-                } else {
-                    Column {
-                        // Lists cycle logs once loaded
-                        logs.forEach {log ->
-                            CycleLogItem(
-                                log = log,
-                                // Navigates to CycleLogFormScreen with ID
-                                onEdit = {
-                                    navController.navigate("cyclelogform?docId=${log.id}")
-                                },
-                                // Deletes log from Firebase
-                                onDelete = {
-                                    db.collection("menstrual_logs")
-                                        .document(userId)
-                                        .collection("cycles")
-                                        .document(log.id)
-                                        .delete()
-                                        .addOnSuccessListener {
-                                            logs = logs.filterNot { it.id == log.id }
-                                        }
-                                        .addOnFailureListener {
-                                            println("Error deleting log: ${it.message}")
-                                        }
-                                }
-                            )
-                        }
+            if (isLoading) {
+                // Show loading spinner
+                CircularProgressIndicator(color = Color(0xFFF48FB1))
+            } else {
+                Column {
+                    // Lists cycle logs once loaded
+                    logs.forEach {log ->
+                        CycleLogItem(
+                            log = log,
+                            // Navigates to CycleLogFormScreen with ID
+                            onEdit = {
+                                navController.navigate("cyclelogform?docId=${log.id}")
+                            },
+                            // Deletes log from Firebase
+                            onDelete = {
+                                db.collection("menstrual_logs")
+                                    .document(userId)
+                                    .collection("cycles")
+                                    .document(log.id)
+                                    .delete()
+                                    .addOnSuccessListener {
+                                        logs = logs.filterNot { it.id == log.id }
+                                    }
+                                    .addOnFailureListener {
+                                        println("Error deleting log: ${it.message}")
+                                    }
+                            }
+                        )
                     }
                 }
             }

@@ -11,30 +11,52 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.aeye.BottomNavigationItem
+import com.example.aeye.navigation.BottomNavigationItem
 import com.example.aeye.R
+import com.example.aeye.ui.screens.BottomTab
 
 // Composable for Hera top bar with centered logo and app name
+
+@Composable
+fun AppScaffold(
+    selectedTab: BottomTab,
+    onTabSelected: (BottomTab) -> Unit,
+    onSettingsClick: () -> Unit,
+    content: @Composable (PaddingValues) -> Unit
+) {
+    Scaffold(
+        topBar = { AEyeTopBar(onSettingsClick) },
+        bottomBar = { AEyeBottomBar(selectedTab, onTabSelected) },
+        content = content
+    )
+
+}
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AEyeTopBar() {
+fun AEyeTopBar(
+    onSettingsClick: () -> Unit
+) {
     CenterAlignedTopAppBar(
         title = {
             Box(modifier = Modifier.fillMaxWidth()) {
                 Image(
-                    painter = painterResource(id = R.drawable.hera),
+                    painter = painterResource(id = R.drawable.logo),
                     contentDescription = "A-Eye Text Logo",
                     modifier = Modifier.align(Alignment.Center).height(100.dp)
                 )
-                Image(
-                    painter = painterResource(id = R.drawable.setting),
-                    contentDescription = "A-Eye Logo",
-                    modifier = Modifier.align(Alignment.CenterStart).padding(start = 10.dp).size(45.dp)
-                )
+                IconButton(
+                    onClick = onSettingsClick,
+                    modifier = Modifier.align(Alignment.CenterEnd)
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.setting),
+                        contentDescription = "Settings",
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
             }
         },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = MaterialTheme.colorScheme.primary)
@@ -44,8 +66,8 @@ fun AEyeTopBar() {
 // Composable for bottom navigation bar for main navigation
 @Composable
 fun AEyeBottomBar(
-    selectedItem: String,
-    onItemSelected: (String) -> Unit
+    selectedTab: BottomTab,
+    onTabSelected: (BottomTab) -> Unit
 ) {
     val bottomNavigationItems = listOf(
         BottomNavigationItem("Home", Icons.Filled.Home),
@@ -55,28 +77,29 @@ fun AEyeBottomBar(
     )
 
     BottomAppBar {
-        bottomNavigationItems.forEach { item ->
+        BottomTab.values().forEach { tab ->
             NavigationBarItem(
-                icon = { Icon(item.icon, contentDescription = item.title) },
-                label = { Text(item.title) },
-                selected = selectedItem == item.title,
-                onClick = { onItemSelected(item.title) }
+                icon = { Icon(tab.placeholderIcon, contentDescription = tab.label) },
+                label = { Text(tab.label) },
+                selected = selectedTab == tab,
+                onClick = { onTabSelected(tab) }
             )
         }
     }
 }
 
 // Handle navigation based on bottom bar selection
-fun handleBottomNavSelection(navController: NavController, selectedItem: String) {
-    when (selectedItem) {
-        "Home" -> navController.navigate("home")
-        "Results" -> navController.navigate("results")
-        "Search" -> navController.navigate("search")
-        "Hospitals" -> navController.navigate("hospitals")
+fun handleBottomNavSelection(navController: NavController, tab: BottomTab) {
+    when (tab) {
+        BottomTab.Home -> navController.navigate("home")
+        BottomTab.Results -> navController.navigate("results")
+        BottomTab.Search -> navController.navigate("search")
+        BottomTab.Clinics -> navController.navigate("clinics")
     }
 }
 
 // Composable for background image
+/*
 @Composable
 fun AEyeBackground(content: @Composable () -> Unit) {
     Box(modifier = Modifier.fillMaxSize()) {
@@ -89,6 +112,6 @@ fun AEyeBackground(content: @Composable () -> Unit) {
         content()
     }
 }
-
+*/
 
 

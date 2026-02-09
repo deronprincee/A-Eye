@@ -1,6 +1,8 @@
-package com.example.aeye
+package com.example.aeye.ai
 
 
+import com.example.aeye.data.model.CycleData
+import com.example.aeye.data.model.Symptoms
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.*

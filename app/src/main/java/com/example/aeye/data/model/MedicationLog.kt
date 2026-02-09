@@ -1,4 +1,4 @@
-package com.example.aeye
+package com.example.aeye.data.model
 
 data class MedicationLog(
     val id: String? = null,        // Firestore document ID

@@ -1,4 +1,7 @@
-package com.example.aeye
+package com.example.aeye.ai
+
+import com.example.aeye.data.model.CycleData
+import com.example.aeye.data.model.Symptoms
 
 // Added a class that delegates messages between a specialized bot (Hera) and a general-purpose bot (CohereAI)
 class HybridChatbot(

@@ -1,4 +1,4 @@
-package com.example.aeye
+package com.example.aeye.data.model
 
 data class CycleData(
     val userId: String,   // Firebase user ID

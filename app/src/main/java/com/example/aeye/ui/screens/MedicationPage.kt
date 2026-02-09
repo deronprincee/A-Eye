@@ -1,4 +1,4 @@
-package com.example.aeye.pages
+package com.example.aeye.ui.screens
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
@@ -23,11 +23,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.geometry.Offset
 import androidx.navigation.NavController
-import com.example.aeye.MedicationLog
-import com.example.aeye.ui.components.AEyeBackground
-import com.example.aeye.ui.components.AEyeBottomBar
+import com.example.aeye.data.model.MedicationLog
 import com.example.aeye.ui.components.AEyeTopBar
-import com.example.aeye.ui.components.handleBottomNavSelection
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
@@ -76,109 +73,101 @@ fun MedicationPage(navController: NavController) {
 
     // Added scaffold layout with top and bottom UI bars
     Scaffold(
-        topBar = { AEyeTopBar() },
-        bottomBar = {
-            AEyeBottomBar(selectedItem = selectedItem) { newItem ->
-                selectedItem = newItem
-                handleBottomNavSelection(navController, newItem)
-            }
-        }
+        topBar = { AEyeTopBar(onSettingsClick = { /* nav later */  }) }
     ) { innerPadding ->
-        AEyeBackground {
-            MedicationContent(
-                modifier = Modifier
-                    .verticalScroll(rememberScrollState())
-                    .padding(innerPadding)
-                    .padding(24.dp),
-                name = name,
-                onNameChange = { name = it },
-                dosage = dosage,
-                onDosageChange = { dosage = it },
-                selectedDate = selectedDate,
-                onDateChange = { selectedDate = it },
-                selectedTime = selectedTime,
-                onTimeChange = { selectedTime = it },
-                frequency = frequency,
-                onFrequencyChange = { frequency = it },
-                medicationLog = medicationLog,
-                isLoading = isLoading,
-                isEditing = isEditing,
-                onEdit = { log ->
-                    // Populates UI with selected log for editing
-                    name = log.name
-                    dosage = log.dosage
-                    selectedDate = log.date
-                    selectedTime = log.time
-                    frequency = log.frequency
-                    editingDocId = log.id.orEmpty()
-                    isEditing = true
-                },
-                // Option to delete the log entry from Firestore database
-                onDelete = { log ->
-                    log.id?.let {
-                        db.collection("users").document(userId)
-                            .collection("medications").document(it).delete()
-                            .addOnSuccessListener { loadLogs() }
-                    }
-                },
-                // Validates for time before saving
-                onSave = onSave@{
-                    if(selectedTime == "Select Time") {
-                        Toast.makeText(context, "Please select a valid time for your medication.",Toast.LENGTH_SHORT).show()
-                        return@onSave
-                    }
-                    // Creates MedicationLog instance
-                    val log = MedicationLog(
-                        name = name.trim(),
-                        dosage = dosage.trim(),
-                        date = selectedDate,
-                        time = selectedTime,
-                        frequency = frequency
-                    )
-                    // Updates an existing medication log in Firestore, reloads logs and resets the form
-                    if (isEditing && editingDocId.isNotEmpty()) {
-                        db.collection("users").document(userId).collection("medications")
-                            .document(editingDocId)
-                            .set(log)
-                            .addOnSuccessListener {
-                                loadLogs()
-                                name = ""
-                                dosage = ""
-                                selectedDate = getCurrentDate()
-                                selectedTime = "Select Time"
-                                frequency = ""
-                                isEditing = false
-                                editingDocId = ""
-                            }
-                    } else {
-                        // Adds a new medication log to Firestore, reloads logs and resets the form
-                        db.collection("users").document(userId)
-                            .collection("medications")
-                            .add(log)
-                            .addOnSuccessListener {
-                                loadLogs()
-                                name = ""
-                                dosage = ""
-                                selectedDate = getCurrentDate()
-                                selectedTime = "Select Time"
-                                frequency = ""
-                            }
-                    }
-                },
-                // Form is reset to default values when edit is canceled
-                onCancelEdit = {
-                    isEditing = false
-                    editingDocId = ""
-                    name = ""
-                    dosage = ""
-                    selectedDate = getCurrentDate()
-                    selectedTime = "Select Time"
-                    frequency = ""
-                },
-                showDatePicker = showDatePicker,
-                showTimePicker = showTimePicker
-            )
-        }
+        MedicationContent(
+            modifier = Modifier
+                .verticalScroll(rememberScrollState())
+                .padding(innerPadding)
+                .padding(24.dp),
+            name = name,
+            onNameChange = { name = it },
+            dosage = dosage,
+            onDosageChange = { dosage = it },
+            selectedDate = selectedDate,
+            onDateChange = { selectedDate = it },
+            selectedTime = selectedTime,
+            onTimeChange = { selectedTime = it },
+            frequency = frequency,
+            onFrequencyChange = { frequency = it },
+            medicationLog = medicationLog,
+            isLoading = isLoading,
+            isEditing = isEditing,
+            onEdit = { log ->
+                // Populates UI with selected log for editing
+                name = log.name
+                dosage = log.dosage
+                selectedDate = log.date
+                selectedTime = log.time
+                frequency = log.frequency
+                editingDocId = log.id.orEmpty()
+                isEditing = true
+            },
+            // Option to delete the log entry from Firestore database
+            onDelete = { log ->
+                log.id?.let {
+                    db.collection("users").document(userId)
+                        .collection("medications").document(it).delete()
+                        .addOnSuccessListener { loadLogs() }
+                }
+            },
+            // Validates for time before saving
+            onSave = onSave@{
+                if(selectedTime == "Select Time") {
+                    Toast.makeText(context, "Please select a valid time for your medication.",Toast.LENGTH_SHORT).show()
+                    return@onSave
+                }
+                // Creates MedicationLog instance
+                val log = MedicationLog(
+                    name = name.trim(),
+                    dosage = dosage.trim(),
+                    date = selectedDate,
+                    time = selectedTime,
+                    frequency = frequency
+                )
+                // Updates an existing medication log in Firestore, reloads logs and resets the form
+                if (isEditing && editingDocId.isNotEmpty()) {
+                    db.collection("users").document(userId).collection("medications")
+                        .document(editingDocId)
+                        .set(log)
+                        .addOnSuccessListener {
+                            loadLogs()
+                            name = ""
+                            dosage = ""
+                            selectedDate = getCurrentDate()
+                            selectedTime = "Select Time"
+                            frequency = ""
+                            isEditing = false
+                            editingDocId = ""
+                        }
+                } else {
+                    // Adds a new medication log to Firestore, reloads logs and resets the form
+                    db.collection("users").document(userId)
+                        .collection("medications")
+                        .add(log)
+                        .addOnSuccessListener {
+                            loadLogs()
+                            name = ""
+                            dosage = ""
+                            selectedDate = getCurrentDate()
+                            selectedTime = "Select Time"
+                            frequency = ""
+                        }
+                }
+            },
+            // Form is reset to default values when edit is canceled
+            onCancelEdit = {
+                isEditing = false
+                editingDocId = ""
+                name = ""
+                dosage = ""
+                selectedDate = getCurrentDate()
+                selectedTime = "Select Time"
+                frequency = ""
+            },
+            showDatePicker = showDatePicker,
+            showTimePicker = showTimePicker
+        )
     }
 
     // Displays the date and time picker dialog once user toggles them

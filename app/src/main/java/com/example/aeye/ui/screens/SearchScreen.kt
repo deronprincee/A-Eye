@@ -1,4 +1,4 @@
-package com.example.aeye.ui.herascreens
+package com.example.aeye.ui.screens
 
 import android.content.Intent
 import androidx.compose.foundation.background

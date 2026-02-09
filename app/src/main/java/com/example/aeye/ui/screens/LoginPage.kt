@@ -1,4 +1,4 @@
-package com.example.aeye.pages
+package com.example.aeye.ui.screens
 
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -10,8 +10,6 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -20,11 +18,9 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.aeye.AuthState
-import com.example.aeye.AuthViewModel
+import com.example.aeye.viewmodel.AuthState
+import com.example.aeye.viewmodel.AuthViewModel
 import com.example.aeye.R
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
 
 @Composable
 fun LoginPage(
@@ -61,29 +57,10 @@ fun LoginPage(
 
     val colorScheme = MaterialTheme.colorScheme
 
-    Box(modifier = Modifier.fillMaxSize()) {
-
-        // Background image
-        Image(
-            painter = painterResource(R.drawable.aeye_bg),
-            contentDescription = null,
-            modifier = Modifier.fillMaxSize(),
-            contentScale = ContentScale.Crop
-        )
-
-        // Readability overlay
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            Color.Black.copy(alpha = 0.55f),
-                            Color.Black.copy(alpha = 0.30f)
-                        )
-                    )
-                )
-        )
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .background(MaterialTheme.colorScheme.background)
+    ) {
 
         // Form card
         Card(
@@ -116,7 +93,7 @@ fun LoginPage(
                     text = "Welcome Back",
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
-                    color = colorScheme.onSurface
+                    color = MaterialTheme.colorScheme.onBackground
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -169,7 +146,7 @@ fun LoginPage(
                 TextButton(onClick = { navController.navigate("signup") }) {
                     Text(
                         "Don’t have an account? Sign Up",
-                        color = colorScheme.primary,
+                        color = MaterialTheme.colorScheme.onBackground,
                         fontWeight = FontWeight.SemiBold
                     )
                 }
