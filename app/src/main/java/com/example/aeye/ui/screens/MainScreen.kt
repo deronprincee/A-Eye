@@ -41,9 +41,8 @@ fun MainScreen(
             BottomTab.Home -> HomeScreen(
                 modifier = Modifier,
                 contentPadding = innerPadding,
-                onTestClick = { testRoute ->
-                    // We'll create test pages later. For now, safe call:
-                    // navController.navigate(testRoute)
+                onTestClick = { route ->
+                    navController.navigate(route)
                 }
             )
 

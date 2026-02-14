@@ -18,6 +18,7 @@ import com.example.aeye.ui.screens.MedicationPage
 import com.example.aeye.ui.screens.HospitalScreen
 import com.example.aeye.ui.screens.SearchScreen
 import com.google.firebase.auth.FirebaseAuth
+import com.example.aeye.ui.screens.SnellenTestScreen
 
 @Composable
 fun MyAppNavigation(modifier: Modifier = Modifier, authViewModel: AuthViewModel) {
@@ -40,8 +41,8 @@ fun MyAppNavigation(modifier: Modifier = Modifier, authViewModel: AuthViewModel)
             CycleLogListScreen(navController)
         }
 
-        composable("exercise") {
-            ExercisePage(navController)
+        composable("snellen") {
+            SnellenTestScreen(navController)
         }
 
         composable("diet") {

@@ -90,8 +90,8 @@ fun HomeScreen(
 
             items(tests) { test ->
                 EqualCircleTestButton(
-                    label = test.label,
-                    onClick = { onTestClick(test.route) }
+                    label = "Snellen Test",
+                    onClick = { onTestClick("snellen") }
                 )
 
                 Spacer(modifier = Modifier.height(18.dp))
