@@ -15,7 +15,6 @@ import com.example.aeye.ui.components.*
  * MainScreen owns the Scaffold (TopBar + BottomBar).
  * HomeScreen is ONLY content (no Scaffold) to prevent recursion/ANR.
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
     navController: NavController,

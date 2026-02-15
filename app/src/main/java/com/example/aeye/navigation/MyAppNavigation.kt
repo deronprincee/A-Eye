@@ -9,13 +9,7 @@ import com.example.aeye.ui.screens.LoginPage
 import com.example.aeye.ui.screens.SignupPage
 import androidx.navigation.navArgument
 import com.example.aeye.viewmodel.AuthViewModel
-import com.example.aeye.ui.screens.CycleLogListScreen
 import com.example.aeye.ui.screens.MainScreen
-import com.example.aeye.ui.screens.CycleLogFormScreen
-import com.example.aeye.ui.screens.DietPage
-import com.example.aeye.ui.screens.ExercisePage
-import com.example.aeye.ui.screens.MedicationPage
-import com.example.aeye.ui.screens.HospitalScreen
 import com.example.aeye.ui.screens.SearchScreen
 import com.google.firebase.auth.FirebaseAuth
 import com.example.aeye.ui.screens.SnellenTestScreen
@@ -37,38 +31,11 @@ fun MyAppNavigation(modifier: Modifier = Modifier, authViewModel: AuthViewModel)
         composable("home") {
             MainScreen(navController = navController)
         }
-        composable("cyclelogs") {
-            CycleLogListScreen(navController)
-        }
-
         composable("snellen") {
             SnellenTestScreen(navController)
         }
-
-        composable("diet") {
-            DietPage(navController)
-        }
-
-        composable("medication") {
-            MedicationPage(navController)
-        }
-
-        composable(
-            "cyclelogform?docId={docId}",
-            arguments = listOf(navArgument("docId") { defaultValue = "" })
-        ) { backStackEntry ->
-            val docId = backStackEntry.arguments?.getString("docId")
-            CycleLogFormScreen(navController, docId)
-        }
-
         composable("search") {
             SearchScreen()
         }
-
-        composable("hospitals") {
-            HospitalScreen(navController = navController)
-        }
-
-
     }
 }
