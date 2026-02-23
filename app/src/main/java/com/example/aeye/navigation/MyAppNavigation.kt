@@ -7,7 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.aeye.ui.screens.LoginPage
 import com.example.aeye.ui.screens.SignupPage
-import androidx.navigation.navArgument
+import com.example.aeye.ui.screens.LogmarTestScreen
 import com.example.aeye.viewmodel.AuthViewModel
 import com.example.aeye.ui.screens.MainScreen
 import com.example.aeye.ui.screens.SearchScreen
@@ -33,6 +33,9 @@ fun MyAppNavigation(modifier: Modifier = Modifier, authViewModel: AuthViewModel)
         }
         composable("snellen") {
             SnellenTestScreen(navController)
+        }
+        composable("logmar") {
+            LogmarTestScreen(navController)
         }
         composable("search") {
             SearchScreen()

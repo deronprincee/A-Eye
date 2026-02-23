@@ -91,7 +91,7 @@ fun HomeScreen(
             items(tests) { test ->
                 EqualCircleTestButton(
                     label = "Snellen Test",
-                    onClick = { onTestClick("snellen") }
+                    onClick = { onTestClick("logmar") }
                 )
 
                 Spacer(modifier = Modifier.height(18.dp))
