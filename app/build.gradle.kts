@@ -52,10 +52,10 @@ android {
 dependencies {
 
     //Firebase
-    implementation(platform("com.google.firebase:firebase-bom:34.8.0"))
-    implementation("com.google.firebase:firebase-analytics")
+    implementation(libs.firebase.analytics)
+    implementation(platform(libs.firebase.bom.v3320))
+    implementation(libs.google.firebase.firestore.ktx)
     implementation(libs.firebase.auth.ktx)
-    implementation(libs.firebase.firestore)
     implementation(libs.firebase.database)
     implementation(libs.firebase.crashlytics.buildtools)
 
@@ -65,15 +65,15 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
 
     //Compose
-    implementation(platform("androidx.compose:compose-bom:2024.04.01"))
-    implementation("androidx.compose.ui:ui")
-    implementation("androidx.compose.ui:ui-text")
-    implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.compose.material3:material3")
+    implementation(platform(libs.androidx.compose.bom.v20260201))
+    implementation(libs.ui)
+    implementation(libs.androidx.ui.text)
+    implementation(libs.ui.tooling.preview)
+    implementation(libs.material3)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.runtime.livedata)
     implementation(libs.androidx.material.icons.extended)
-    implementation("androidx.compose.foundation:foundation")
+    implementation(libs.androidx.foundation)
 
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
@@ -88,7 +88,7 @@ dependencies {
     implementation(libs.googleid)
 
     //UI
-    implementation("io.coil-kt:coil-compose:2.6.0")
+    implementation(libs.coil.compose)
 
     //Networking / JSON
     implementation(libs.okhttp)
@@ -104,8 +104,8 @@ dependencies {
     implementation(libs.accompanist.permissions)
 
     //View System
-    implementation("androidx.recyclerview:recyclerview:1.4.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.3")
+    implementation(libs.androidx.recyclerview)
+    implementation(libs.androidx.constraintlayout.v213)
     implementation(libs.material)
 
     //Unit Tests
@@ -120,4 +120,7 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     androidTestImplementation(libs.androidx.navigation.testing)
     androidTestImplementation(libs.mockito.android)
+
+    //Datastore
+    implementation (libs.androidx.datastore.preferences)
 }

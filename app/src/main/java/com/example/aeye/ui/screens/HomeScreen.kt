@@ -20,6 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.aeye.data.model.HomeTestItem
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
@@ -36,15 +37,10 @@ fun HomeScreen(
             ?: "User"
     }
 
-    val tests = remember {
-        listOf(
-            TestItem("eye\ntest\n1", "test_1"),
-            TestItem("eye\ntest\n2", "test_2"),
-            TestItem("eye\ntest\n3", "test_3"),
-            TestItem("eye\ntest\n4", "test_4"),
-            TestItem("eye\ntest\n5", "test_5"),
-        )
-    }
+    val tests = listOf(
+        HomeTestItem("LogMAR Near Test", "logmar"),
+        HomeTestItem("Snellen Test", "snellen")
+    )
 
     // Light grey page background like your wireframe
     val pageGrey = Color(0xFFEDEDED)
@@ -90,8 +86,8 @@ fun HomeScreen(
 
             items(tests) { test ->
                 EqualCircleTestButton(
-                    label = "Snellen Test",
-                    onClick = { onTestClick("logmar") }
+                    label = test.label,
+                    onClick = { onTestClick(test.route) }
                 )
 
                 Spacer(modifier = Modifier.height(18.dp))

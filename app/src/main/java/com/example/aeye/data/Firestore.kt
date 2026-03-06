@@ -1,93 +1,82 @@
 package com.example.aeye.data
-import android.util.Log
-import com.example.aeye.data.model.CycleData
-import com.example.aeye.data.model.CycleLog
-import com.example.aeye.data.model.Symptoms
+
+import com.example.aeye.data.model.TestResult
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.tasks.await
 
-class Firestore {
-    private val db= FirebaseFirestore.getInstance()
+class Firestore(
+    private val auth: FirebaseAuth,
+    private val db: FirebaseFirestore
+) {
 
-    /**
-     * Get all cycle logs for a user.
-     */
-    fun getCycleLogs(
-        userId: String,
-        onSuccess: (List<CycleLog>) -> Unit,
-        onFailure: (Exception) -> Unit
-    ) {
-        db.collection("menstrual_logs")
-            .document(userId)
-            .collection("cycles")
-            .get()
-            .addOnSuccessListener { documents ->
-                val cycleLogs = documents.mapNotNull { it.toObject(CycleLog::class.java) }
-                onSuccess(cycleLogs)
-            }
-            .addOnFailureListener { e ->
-                Log.e("Firestore", "Error fetching cycle logs: ${e.message}")
-                onFailure(e)
-            }
-    }
+    private fun uid(): String =
+        auth.currentUser?.uid ?: throw IllegalStateException("User not signed in")
 
-    /**
-     * Get the most recent cycle log for a user.
-     */
-    fun getLatestCycleLog(
-        userId: String,
-        onSuccess: (CycleLog) -> Unit,
-        onFailure: (Exception) -> Unit
-    ) {
-        db.collection("menstrual_logs")
-            .document(userId)
-            .collection("cycles")
-            .orderBy("startDate")
-            .limitToLast(1)
-            .get()
-            .addOnSuccessListener { documents ->
-                val latestLog = documents.firstOrNull()?.toObject(CycleLog::class.java)
-                if (latestLog != null) {
-                    onSuccess(latestLog)
-                } else {
-                    onFailure(Exception("No cycle logs found"))
-                }
-            }
-            .addOnFailureListener { e ->
-                Log.e("Firestore", "Error fetching latest cycle log: ${e.message}")
-                onFailure(e)
-            }
-    }
+    suspend fun addResult(result: TestResult) {
 
-    /**
-     * Convert the latest cycle log into chatbot-friendly format.
-     */
-    fun getChatbotData(
-        userId: String,
-        onResult: (Symptoms, CycleData) -> Unit,
-        onError: (Exception) -> Unit
-    ) {
-        getLatestCycleLog(
-            userId = userId,
-            onSuccess = { log ->
-                val symptoms = Symptoms(
-                    mood = log.mood,
-                    energy = log.energyLevel,
-                    painLevel = log.painLevel,
-                    hydration = log.hydration.toInt()
-                )
+        val doc = db.collection("users")
+            .document(uid())
+            .collection("results")
+            .document()
 
-                val cycleData = CycleData(
-                    userId = userId,
-                    cycleStartDate = log.startDate,
-                    cycleEndDate = log.endDate,
-                    symptoms = symptoms
-                )
-
-                onResult(symptoms, cycleData)
-            },
-            onFailure = onError
+        val payload = hashMapOf(
+            "testType" to result.testType,
+            "distanceCm" to result.distanceCm,
+            "finalLogmar" to result.finalLogmar,
+            "snellenApprox" to result.snellenApprox,
+            "totalCorrectLetters" to result.totalCorrectLetters,
+            "totalLetters" to result.totalLetters,
+            "pxPerMm" to result.pxPerMm,
+            "createdAt" to com.google.firebase.firestore.FieldValue.serverTimestamp()
         )
+
+        doc.set(payload).await()
+    }
+
+    fun observeResults(): Flow<List<TestResult>> = callbackFlow {
+
+        val listener = db.collection("users")
+            .document(uid())
+            .collection("results")
+            .orderBy("createdAt", Query.Direction.DESCENDING)
+            .addSnapshotListener { snapshot, error ->
+
+                if (error != null) {
+                    close(error)
+                    return@addSnapshotListener
+                }
+
+                val results = snapshot?.documents?.map { doc ->
+
+                    val createdAt = doc.getTimestamp("createdAt")?.toDate()?.time
+                    val createdAtMillis = doc.getLong("createdAtMillis")
+
+                    TestResult(
+                        id = doc.id,
+                        testType = doc.getString("testType") ?: "",
+                        finalLogmar = doc.getDouble("finalLogmar"),
+                        snellenApprox = doc.getString("snellenApprox"),
+                        createdAtMillis = createdAt ?: createdAtMillis
+                    )
+                } ?: emptyList()
+
+                trySend(results)
+            }
+
+        awaitClose { listener.remove() }
+    }
+    suspend fun deleteResult(resultId: String) {
+        val uid = auth.currentUser?.uid ?: return
+        db.collection("users")
+            .document(uid)
+            .collection("results")
+            .document(resultId)
+            .delete()
+            .await()
     }
 }
-
-
