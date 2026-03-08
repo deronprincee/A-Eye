@@ -1,5 +1,6 @@
 package com.example.aeye.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -9,10 +10,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.example.aeye.ui.components.AppScaffold
 import com.example.aeye.viewmodel.ResultsViewModel
+import com.google.android.play.core.integrity.r
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -20,10 +22,8 @@ import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ResultScreen(
-    selectedTab: BottomTab,
-    onTabSelected: (BottomTab) -> Unit,
-    onSettingsClick: () -> Unit,
-    resultsViewModel: ResultsViewModel
+    resultsViewModel: ResultsViewModel,
+    modifier: Modifier = Modifier
 ) {
     val allResults by resultsViewModel.results.collectAsState()
 
@@ -64,116 +64,126 @@ fun ResultScreen(
         }
     }
 
-    AppScaffold(
-        selectedTab = selectedTab,
-        onTabSelected = onTabSelected,
-        onSettingsClick = onSettingsClick
-    ) { padding ->
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(14.dp)
+    ) {
 
-        Column(
-            modifier = Modifier
-                .padding(padding)
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
+        Text(
+            text = "Test Results",
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.tertiary
+        )
+
+        // ---------- TEST TYPE DROPDOWN ----------
+        ExposedDropdownMenuBox(
+            expanded = testTypeExpanded,
+            onExpandedChange = { testTypeExpanded = !testTypeExpanded }
         ) {
-
-            Text(
-                text = "Test Results",
-                style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-
-            // ---------- TEST TYPE DROPDOWN ----------
-            ExposedDropdownMenuBox(
-                expanded = testTypeExpanded,
-                onExpandedChange = { testTypeExpanded = !testTypeExpanded }
-            ) {
-                OutlinedTextField(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .menuAnchor(),
-                    value = selectedTestType,
-                    onValueChange = {},
-                    readOnly = true,
-                    label = { Text("Select test") }
+            OutlinedTextField(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .menuAnchor(),
+                value = selectedTestType,
+                onValueChange = {},
+                readOnly = true,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = Color.White,
+                    unfocusedContainerColor = Color.White,
+                    focusedBorderColor = MaterialTheme.colorScheme.tertiary
                 )
-                ExposedDropdownMenu(
-                    expanded = testTypeExpanded,
-                    onDismissRequest = { testTypeExpanded = false }
-                ) {
-                    testTypes.forEach { type ->
-                        DropdownMenuItem(
-                            text = { Text(type) },
-                            onClick = {
-                                selectedTestType = type
-                                testTypeExpanded = false
-                            }
-                        )
-                    }
-                }
-            }
-
-            // ---------- DATE RANGE ----------
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            )
+            ExposedDropdownMenu(
+                expanded = testTypeExpanded,
+                onDismissRequest = { testTypeExpanded = false },
+                modifier = Modifier.background(Color.White)
             ) {
-                OutlinedButton(
-                    onClick = { showStartPicker = true },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(text = startDateMillis.formatAsDateOr("Start date"))
-                }
-
-                OutlinedButton(
-                    onClick = { showEndPicker = true },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(text = endDateMillis.formatAsDateOr("End date"))
+                testTypes.forEach { type ->
+                    DropdownMenuItem(
+                        text = { Text(type) },
+                        onClick = {
+                            selectedTestType = type
+                            testTypeExpanded = false
+                        }
+                    )
                 }
             }
+        }
 
-            // ---------- SEARCH BUTTON ----------
+        // ---------- DATE RANGE ----------
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
             Button(
-                onClick = {
-                    appliedTestType = selectedTestType
-
-                    // Normalize end date to include full day (optional)
-                    appliedStart = startDateMillis
-                    appliedEnd = endDateMillis?.let { it + 86_399_000L } // up to 23:59:59
-                },
-                modifier = Modifier.fillMaxWidth()
+                onClick = { showStartPicker = true },
+                modifier = Modifier.weight(1f),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.White,
+                    contentColor = Color.DarkGray
+                )
             ) {
-                Text("Search")
+                Text(text = startDateMillis.formatAsDateOr("Start date"))
             }
 
-            Divider()
+            Button(
+                onClick = { showEndPicker = true },
+                modifier = Modifier.weight(1f),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.White,
+                    contentColor = Color.DarkGray
+                )
+            ) {
+                Text(text = endDateMillis.formatAsDateOr("End date"))
+            }
+        }
 
-            // ---------- RESULTS LIST ----------
-            if (filtered.isEmpty()) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text("No results found for the selected filters.")
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    items(filtered, key = { it.id }) { r ->
-                        ResultCard(
-                            testName = r.testType,
-                            dateText = (r.createdAtMillis ?: 0L).formatAsDateTime(),
-                            finalLogmar = r.finalLogmar,
-                            snellenApprox = r.snellenApprox,
-                            totalCorrectLetters = r.totalCorrectLetters,
-                            totalLetters = r.totalLetters,
-                            onDelete = { pendingDeleteId = r.id }
-                        )
-                    }
+        // ---------- SEARCH BUTTON ----------
+        Button(
+            onClick = {
+                appliedTestType = selectedTestType
+
+                // Normalize end date to include full day (optional)
+                appliedStart = startDateMillis
+                appliedEnd = endDateMillis?.let { it + 86_399_000L } // up to 23:59:59
+            },
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.White,
+                contentColor = Color.DarkGray
+            )
+        ) {
+            Text("Search")
+        }
+
+        HorizontalDivider()
+
+        // ---------- RESULTS LIST ----------
+        if (filtered.isEmpty()) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("No results found for the selected filters.")
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                items(filtered, key = { it.id }) { r ->
+                    ResultCard(
+                        testName = r.testType,
+                        dateText = (r.createdAtMillis ?: 0L).formatAsDateTime(),
+                        finalLogmar = r.finalLogmar,
+                        snellenApprox = r.snellenApprox,
+                        totalLetters = r.totalLetters,
+                        totalCorrectLetters = r.totalCorrectLetters,
+                        pxPerMm = r.pxPerMm,
+                        onDelete = { pendingDeleteId = r.id }
+                    )
                 }
             }
         }
@@ -245,6 +255,7 @@ private fun ResultCard(
     snellenApprox: String?,
     totalCorrectLetters: Int?,
     totalLetters: Int?,
+    pxPerMm: Double?,
     onDelete: () -> Unit
 ) {
     Card(
@@ -270,6 +281,21 @@ private fun ResultCard(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                 )
+                finalLogmar?.let {
+                    Text("LogMAR: ${"%.2f".format(it)}")
+                }
+
+                snellenApprox?.let {
+                    Text("Snellen: $it")
+                }
+
+                if (totalCorrectLetters != null && totalLetters != null) {
+                    Text("Score: ${totalCorrectLetters}/${totalLetters}")
+                }
+
+                pxPerMm?.let {
+                    Text("Pixels per Millimeters: $it")
+                }
             }
 
             IconButton(onClick = onDelete) {

@@ -9,6 +9,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.example.aeye.ui.components.*
+import com.example.aeye.viewmodel.ResultsViewModel
 
 
 /**
@@ -18,6 +19,7 @@ import com.example.aeye.ui.components.*
 @Composable
 fun MainScreen(
     navController: NavController,
+    resultsViewModel: ResultsViewModel,
     onOpenSettings: () -> Unit = { /* navController.navigate("settings") later */ },
     onTabSelected: (BottomTab) -> Unit = { /* optional callback */ }
 ) {
@@ -30,7 +32,6 @@ fun MainScreen(
                 selectedTab = selectedTab,
                 onTabSelected = { tab ->
                     selectedTab = tab
-                    handleBottomNavSelection(navController, tab)
                 }
             )
         }
@@ -44,8 +45,10 @@ fun MainScreen(
                     navController.navigate(route)
                 }
             )
-
-            BottomTab.Results -> PlaceholderScreen("Results (Coming Soon)")
+            BottomTab.Results -> ResultScreen(
+                resultsViewModel = resultsViewModel,
+                modifier = Modifier.padding(innerPadding)
+            )
             BottomTab.Search -> PlaceholderScreen("Chat (Coming Soon)")
             BottomTab.Clinics -> PlaceholderScreen("Clinics (Coming Soon)")
         }

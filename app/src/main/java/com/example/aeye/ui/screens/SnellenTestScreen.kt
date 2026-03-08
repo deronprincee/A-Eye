@@ -102,7 +102,6 @@ fun SnellenTestScreen(navController: NavController) {
                 OutlinedTextField(
                     value = answer,
                     onValueChange = { answer = it },
-                    label = { Text("Type the letters you see") },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(
                         capitalization = KeyboardCapitalization.Characters
@@ -124,6 +123,7 @@ fun SnellenTestScreen(navController: NavController) {
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Button(
+                        modifier = Modifier.weight(1f),
                         onClick = { submitAnswer() },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color.White,
@@ -134,6 +134,7 @@ fun SnellenTestScreen(navController: NavController) {
                     }
 
                     Button(
+                        modifier = Modifier.weight(1f),
                         onClick = { navController.popBackStack() },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color.White,
@@ -171,6 +172,7 @@ fun SnellenTestScreen(navController: NavController) {
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Button(
+                        modifier = Modifier.weight(1f),
                         onClick = {
                             rowResults.clear()
                             currentRowIndex = 0
@@ -187,13 +189,14 @@ fun SnellenTestScreen(navController: NavController) {
                     }
 
                     Button(
+                        modifier = Modifier.weight(1f),
                         onClick = { navController.popBackStack() },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color.White,
                             contentColor = Color.DarkGray
                         )
                     ) {
-                        Text("Back")
+                        Text("Exit")
                     }
                 }
             }

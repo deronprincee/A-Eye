@@ -16,7 +16,6 @@ import com.example.aeye.ui.screens.SignupPage
 import com.example.aeye.ui.screens.LogmarTestScreen
 import com.example.aeye.viewmodel.AuthViewModel
 import com.example.aeye.ui.screens.MainScreen
-import com.example.aeye.ui.screens.ResultScreen
 import com.google.firebase.auth.FirebaseAuth
 import com.example.aeye.ui.screens.SnellenTestScreen
 import com.example.aeye.viewmodel.CalibrationViewModel
@@ -58,7 +57,10 @@ fun MyAppNavigation(modifier: Modifier = Modifier, authViewModel: AuthViewModel)
             SignupPage(navController, authViewModel)
         }
         composable("home") {
-            MainScreen(navController = navController)
+            MainScreen(
+                navController = navController,
+                resultsViewModel = resultsViewModel
+            )
         }
         composable("snellen") {
             SnellenTestScreen(navController)
@@ -75,19 +77,6 @@ fun MyAppNavigation(modifier: Modifier = Modifier, authViewModel: AuthViewModel)
                 calibrationViewModel = calibrationViewModel,
                 resultsViewModel = resultsViewModel
             )
-        }
-        composable("results") {
-            ResultScreen(
-                selectedTab = BottomTab.Results,
-                onTabSelected = { tab ->
-                    // update selected tab + navigate via your existing handler
-                    handleBottomNavSelection(navController, tab)
-                },
-                onSettingsClick = { /* navigate settings */ },
-                resultsViewModel = resultsViewModel
-            )
-        }
-        composable("search") {
         }
     }
 }

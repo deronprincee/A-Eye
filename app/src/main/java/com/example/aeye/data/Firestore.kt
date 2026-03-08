@@ -52,15 +52,16 @@ class Firestore(
                 }
 
                 val results = snapshot?.documents?.map { doc ->
-
                     val createdAt = doc.getTimestamp("createdAt")?.toDate()?.time
                     val createdAtMillis = doc.getLong("createdAtMillis")
-
                     TestResult(
                         id = doc.id,
                         testType = doc.getString("testType") ?: "",
                         finalLogmar = doc.getDouble("finalLogmar"),
                         snellenApprox = doc.getString("snellenApprox"),
+                        totalLetters = doc.getLong("totalLetters")?.toInt(),
+                        totalCorrectLetters = doc.getLong("totalCorrectLetters")?.toInt(),
+                        pxPerMm = doc.getDouble("pxPerMm"),
                         createdAtMillis = createdAt ?: createdAtMillis
                     )
                 } ?: emptyList()

@@ -46,7 +46,7 @@ fun HomeScreen(
     val pageGrey = Color(0xFFEDEDED)
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(pageGrey)
             .padding(horizontal = 20.dp)
@@ -105,11 +105,6 @@ fun HomeScreen(
         }
     }
 }
-
-private data class TestItem(
-    val label: String,
-    val route: String
-)
 
 @Composable
 private fun EqualCircleTestButton(

@@ -174,6 +174,7 @@ fun LogmarTestScreen(
 
     // ----- Results -----
     val totalCorrectLetters = correctPerLine.sum()
+    val attemptedLetters = correctPerLine.size * lettersPerLine
     val startLogmar = rows.first().logmar
     val finalLogmar = (startLogmar - (totalCorrectLetters * letterValue)).coerceAtLeast(-0.3f)
 
@@ -186,7 +187,7 @@ fun LogmarTestScreen(
                 finalLogmar = finalLogmar.toDouble(),
                 snellenApprox = approxSnellen(finalLogmar),
                 totalCorrectLetters = totalCorrectLetters,
-                totalLetters = rows.size * lettersPerLine,
+                totalLetters = attemptedLetters,
                 pxPerMm = pxPerMm
             )
 
@@ -194,7 +195,7 @@ fun LogmarTestScreen(
         }
     }
 
-    val scoreText = "Correct letters: $totalCorrectLetters / ${rows.size * lettersPerLine}"
+    val scoreText = "Correct letters: $totalCorrectLetters / $attemptedLetters"
     val logmarText = "Estimated logMAR: ${"%.2f".format(finalLogmar)}"
     val snellenText = "Approx Snellen: ${approxSnellen(finalLogmar)}"
 
@@ -217,13 +218,6 @@ fun LogmarTestScreen(
                 "Distance: 40 cm. Cover one eye.\nRead the 5 letters using Speech or Typing.\nTap Submit to score the line.",
                 style = MaterialTheme.typography.bodyMedium
             )
-            Spacer(Modifier.height(6.dp))
-            Text(
-                "Calibration: ON (${String.format("%.2f", pxPerMm)} px/mm)",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f)
-            )
-            Text("CAL VALUE = ${pxPerMm}", fontSize = 12.sp)
         }
 
         // Center chart row (5 letters)
@@ -247,12 +241,6 @@ fun LogmarTestScreen(
                     )
 
                     Spacer(Modifier.height(8.dp))
-
-                    // DEBUG INFO
-                    Text(
-                        text = "logMAR=${row.logmar}  sizeSp=${"%.1f".format(fontSizeSp)}  pxPerMm=${"%.2f".format(pxPerMm)}",
-                        fontSize = 12.sp
-                    )
                 }
             }
         } else {
@@ -391,8 +379,8 @@ fun LogmarTestScreen(
                     onClick = { navController.popBackStack() },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Gray,
-                        contentColor = Color.White
+                        containerColor = Color.White,
+                        contentColor = Color.DarkGray
                     )
                 ) { Text("Exit") }
 
@@ -410,6 +398,8 @@ fun LogmarTestScreen(
                             typedText = ""
                             feedback = null
                             correctPerLine.clear()
+                            savedToFirestore = false
+                            deviceLimitReached = false
                         },
                         modifier = Modifier.weight(1f),
                         colors = ButtonDefaults.buttonColors(
@@ -422,10 +412,10 @@ fun LogmarTestScreen(
                         onClick = { navController.popBackStack() },
                         modifier = Modifier.weight(1f),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.Gray,
-                            contentColor = Color.White
+                            containerColor = Color.White,
+                            contentColor = Color.DarkGray
                         )
-                    ) { Text("Back") }
+                    ) { Text("Exit") }
                 }
             }
         }
