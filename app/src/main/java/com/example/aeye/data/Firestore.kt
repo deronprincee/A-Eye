@@ -26,13 +26,17 @@ class Firestore(
 
         val payload = hashMapOf(
             "testType" to result.testType,
-            "distanceCm" to result.distanceCm,
             "finalLogmar" to result.finalLogmar,
             "snellenApprox" to result.snellenApprox,
             "totalCorrectLetters" to result.totalCorrectLetters,
             "totalLetters" to result.totalLetters,
+            "correctPerLine" to result.correctPerLine,
             "pxPerMm" to result.pxPerMm,
-            "createdAt" to com.google.firebase.firestore.FieldValue.serverTimestamp()
+            "lastAttemptedRowLogmar" to result.lastAttemptedRowLogmar,
+            "lastPassedRowLogmar" to result.lastPassedRowLogmar,
+            "inputMode" to result.inputMode,
+            "createdAt" to com.google.firebase.firestore.FieldValue.serverTimestamp(),
+            "createdAtMillis" to System.currentTimeMillis()
         )
 
         doc.set(payload).await()
@@ -61,8 +65,13 @@ class Firestore(
                         snellenApprox = doc.getString("snellenApprox"),
                         totalLetters = doc.getLong("totalLetters")?.toInt(),
                         totalCorrectLetters = doc.getLong("totalCorrectLetters")?.toInt(),
+                        correctPerLine = (doc.get("correctPerLine") as? List<*>)?.mapNotNull {
+                            (it as? Long)?.toInt()
+                        } ?: emptyList(),
                         pxPerMm = doc.getDouble("pxPerMm"),
-                        createdAtMillis = createdAt ?: createdAtMillis
+                        inputMode = doc.getString("inputMode"),
+                        createdAtMillis = doc.getTimestamp("createdAt")?.toDate()?.time
+                            ?: doc.getLong("createdAtMillis"),
                     )
                 } ?: emptyList()
 

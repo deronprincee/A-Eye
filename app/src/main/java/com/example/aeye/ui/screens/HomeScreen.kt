@@ -9,24 +9,31 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.aeye.data.model.HomeTestItem
+import com.example.aeye.ui.components.isSupportedForLogmar
+import com.example.aeye.ui.components.logmarSupportReason
+import com.example.aeye.viewmodel.CalibrationViewModel
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
+    calibrationViewModel: CalibrationViewModel,
     onTestClick: (String) -> Unit
 ) {
     val userName = remember {
@@ -44,6 +51,11 @@ fun HomeScreen(
 
     // Light grey page background like your wireframe
     val pageGrey = Color(0xFFEDEDED)
+
+    val context = LocalContext.current
+    val pxPerMm: Double? by calibrationViewModel.pxPerMm.collectAsState()
+    val logmarSupported = isSupportedForLogmar(context, pxPerMm)
+    val logmarSupportMessage = logmarSupportReason(context, pxPerMm)
 
     Box(
         modifier = modifier

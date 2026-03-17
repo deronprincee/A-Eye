@@ -14,7 +14,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.aeye.viewmodel.ResultsViewModel
-import com.google.android.play.core.integrity.r
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -176,12 +175,17 @@ fun ResultScreen(
                 items(filtered, key = { it.id }) { r ->
                     ResultCard(
                         testName = r.testType,
-                        dateText = (r.createdAtMillis ?: 0L).formatAsDateTime(),
+                        dateText = r.createdAtMillis?.formatAsDateTime() ?: "Date unavailable",
                         finalLogmar = r.finalLogmar,
                         snellenApprox = r.snellenApprox,
                         totalLetters = r.totalLetters,
                         totalCorrectLetters = r.totalCorrectLetters,
+                        correctPerLine = r.correctPerLine,
                         pxPerMm = r.pxPerMm,
+                        lastAttemptedRowLogmar = r.lastAttemptedRowLogmar,
+                        lastPassedRowLogmar = r.lastPassedRowLogmar,
+                        inputMode = r.inputMode,
+                        deviceLimitReached = r.deviceLimitReached,
                         onDelete = { pendingDeleteId = r.id }
                     )
                 }
@@ -255,7 +259,12 @@ private fun ResultCard(
     snellenApprox: String?,
     totalCorrectLetters: Int?,
     totalLetters: Int?,
+    correctPerLine: List<Int>,
     pxPerMm: Double?,
+    lastAttemptedRowLogmar: Double?,
+    lastPassedRowLogmar: Double?,
+    inputMode: String?,
+    deviceLimitReached: Boolean?,
     onDelete: () -> Unit
 ) {
     Card(
@@ -284,18 +293,34 @@ private fun ResultCard(
                 finalLogmar?.let {
                     Text("LogMAR: ${"%.2f".format(it)}")
                 }
-
                 snellenApprox?.let {
                     Text("Snellen: $it")
                 }
-
-                if (totalCorrectLetters != null && totalLetters != null) {
-                    Text("Score: ${totalCorrectLetters}/${totalLetters}")
+                totalLetters?.let {
+                    Text("Total Letters: $it")
                 }
-
+                totalCorrectLetters?.let {
+                    Text("Total Correct Letters: $it")
+                }
+                if (correctPerLine.isNotEmpty()) {
+                    Text("Correct Letters Per row: ${correctPerLine.joinToString(", ")}")
+                }
                 pxPerMm?.let {
                     Text("Pixels per Millimeters: $it")
                 }
+                lastAttemptedRowLogmar?.let {
+                    Text("last Row Attempted: $it")
+                }
+                lastPassedRowLogmar?.let {
+                    Text("last Row Passed: $it")
+                }
+                inputMode?.let {
+                    Text("Input Mode: $it")
+                }
+                deviceLimitReached?.let {
+                    Text("Device Limit Reached: $it")
+                }
+
             }
 
             IconButton(onClick = onDelete) {

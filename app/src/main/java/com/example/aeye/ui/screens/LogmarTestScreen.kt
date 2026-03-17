@@ -32,6 +32,10 @@ import com.example.aeye.viewmodel.CalibrationViewModel
 import com.example.aeye.viewmodel.ResultsViewModel
 import kotlin.math.pow
 import kotlin.random.Random
+import androidx.compose.ui.platform.LocalContext
+import com.example.aeye.ui.components.isSupportedForLogmar
+import com.example.aeye.ui.components.isTabletDevice
+import com.example.aeye.ui.components.logmarSupportReason
 
 enum class InputMode { SPEECH, TYPING }
 private const val MIN_LETTER_SP = 8f
@@ -43,18 +47,39 @@ fun LogmarTestScreen(
     resultsViewModel: ResultsViewModel,
     calibrationRoute: String = "calibration"
 ) {
-    // ---- Read calibration (px per mm) from DataStore via VM ----
-    val pxPerMm: Double? by calibrationViewModel.pxPerMm.collectAsState()
 
-    if (pxPerMm == null || pxPerMm!! <= 0.0) {
-        CalibrationRequiredScreen(
-            onCalibrate = { navController.navigate(calibrationRoute) },
-            onExit = { navController.popBackStack() }
+    val pxPerMm: Double? by calibrationViewModel.pxPerMm.collectAsState()
+    val context = LocalContext.current
+
+    val isSupportedDevice = isSupportedForLogmar(context, pxPerMm)
+    val unsupportedReason = logmarSupportReason(context, pxPerMm)
+
+    if (!isSupportedDevice) {
+        UnsupportedDeviceScreen(
+            message = unsupportedReason ?: "This device is not supported for LogMAR testing.",
+            onExit = {
+                navController.navigate("home") {
+                    popUpTo("home") { inclusive = false }
+                    launchSingleTop = true
+                }
+            }
         )
         return
     }
 
-    // ----- ETDRS-style settings -----
+    if (pxPerMm == null || pxPerMm!! <= 0.0) {
+        CalibrationRequiredScreen(
+            onCalibrate = { navController.navigate(calibrationRoute) },
+            onExit = {
+                navController.navigate("home") {
+                    popUpTo("home") { inclusive = false }
+                    launchSingleTop = true
+                }
+            }
+        )
+        return
+    }
+
     val sloanLetters = remember { listOf('C', 'D', 'H', 'K', 'N', 'O', 'R', 'S', 'V', 'Z') }
 
     val rows = remember {
@@ -71,6 +96,20 @@ fun LogmarTestScreen(
     var finished by remember { mutableStateOf(false) }
     var deviceLimitReached by remember { mutableStateOf(false) }
 
+    var lastPassedRowIndex by remember { mutableStateOf<Int?>(null) }
+    var lastAttemptedRowIndex by remember { mutableStateOf<Int?>(null) }
+
+    val correctPerLine = remember { mutableStateListOf<Int>() }
+
+    val nextRowCorrectCount = if (
+        lastPassedRowIndex != null &&
+        lastPassedRowIndex!! + 1 < correctPerLine.size
+    ) {
+        correctPerLine[lastPassedRowIndex!! + 1]
+    } else {
+        0
+    }
+
     var savedToFirestore by remember { mutableStateOf(false) }
 
     var inputMode by remember { mutableStateOf(InputMode.SPEECH) }
@@ -78,12 +117,8 @@ fun LogmarTestScreen(
     var typedText by remember { mutableStateOf("") }
     var feedback by remember { mutableStateOf<String?>(null) }
 
-    val correctPerLine = remember { mutableStateListOf<Int>() }
-
-    // Typing focus (so "Type" button can open keyboard)
     val typeFocusRequester = remember { FocusRequester() }
 
-    // ----- Permission + Speech launchers -----
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { granted ->
@@ -110,7 +145,7 @@ fun LogmarTestScreen(
         speechLauncher.launch(intent)
     }
 
-    // ----- Calibrated sizing (40 cm near) -----
+    //Calibrated sizing (40 cm near)
     val density = LocalDensity.current
     val pxPerMmF = pxPerMm!!.toFloat()
 
@@ -150,13 +185,16 @@ fun LogmarTestScreen(
         val correctCount = countCorrectByPosition(expected, userLetters)
         correctPerLine.add(correctCount)
 
-        feedback = "Scored: $correctCount / $lettersPerLine correct"
+        lastAttemptedRowIndex = rowIndex
 
-        // Clear input for next line
+        if (correctCount >= 3) {
+            lastPassedRowIndex = rowIndex
+        }
+
+        feedback = "Scored: $correctCount / $lettersPerLine correct"
         spokenText = ""
         typedText = ""
 
-        // Check if the next row would hit the device size limit
         val nextIndex = rowIndex + 1
 
         if (nextIndex <= rows.lastIndex) {
@@ -172,11 +210,31 @@ fun LogmarTestScreen(
         if (rowIndex < rows.lastIndex) rowIndex++ else finished = true
     }
 
-    // ----- Results -----
+    //Results
     val totalCorrectLetters = correctPerLine.sum()
     val attemptedLetters = correctPerLine.size * lettersPerLine
-    val startLogmar = rows.first().logmar
-    val finalLogmar = (startLogmar - (totalCorrectLetters * letterValue)).coerceAtLeast(-0.3f)
+
+    val lastAttemptedRowLogmar = lastAttemptedRowIndex?.let { rows[it].logmar }
+    val lastPassedRowLogmar = lastPassedRowIndex?.let { rows[it].logmar }
+
+    val finalLogmar = when {
+        lastPassedRowLogmar != null -> {
+            (lastPassedRowLogmar - (nextRowCorrectCount * letterValue)).coerceAtLeast(-0.3f)
+        }
+        lastAttemptedRowLogmar != null && correctPerLine.isNotEmpty() -> {
+            val attemptedCorrect = correctPerLine[lastAttemptedRowIndex!!]
+            (lastAttemptedRowLogmar - (attemptedCorrect * letterValue)).coerceAtLeast(-0.3f)
+        }
+        else -> rows.first().logmar
+    }
+
+    val passedRowText = lastPassedRowLogmar?.let {
+        "Smallest passed row: ${"%.1f".format(it)} logMAR"
+    } ?: "No row passed"
+
+    val attemptedRowText = lastAttemptedRowLogmar?.let {
+        "Last attempted row: ${"%.1f".format(it)} logMAR"
+    } ?: "No row attempted"
 
     LaunchedEffect(finished) {
         if (finished && !savedToFirestore) {
@@ -186,8 +244,12 @@ fun LogmarTestScreen(
                 testType = "LOGMAR_NEAR",
                 finalLogmar = finalLogmar.toDouble(),
                 snellenApprox = approxSnellen(finalLogmar),
-                totalCorrectLetters = totalCorrectLetters,
                 totalLetters = attemptedLetters,
+                totalCorrectLetters = totalCorrectLetters,
+                correctPerLine = correctPerLine.toList(),
+                inputMode = inputMode.toString(),
+                lastAttemptedRowLogmar = lastAttemptedRowLogmar?.toDouble(),
+                lastPassedRowLogmar = lastPassedRowLogmar?.toDouble(),
                 pxPerMm = pxPerMm
             )
 
@@ -199,7 +261,7 @@ fun LogmarTestScreen(
     val logmarText = "Estimated logMAR: ${"%.2f".format(finalLogmar)}"
     val snellenText = "Approx Snellen: ${approxSnellen(finalLogmar)}"
 
-    // ----- UI layout -----
+    //UI layout
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -255,6 +317,10 @@ fun LogmarTestScreen(
                 Text(logmarText, style = MaterialTheme.typography.bodyLarge)
                 Spacer(Modifier.height(6.dp))
                 Text(snellenText, style = MaterialTheme.typography.bodyLarge)
+                Spacer(Modifier.height(6.dp))
+                Text(passedRowText, style = MaterialTheme.typography.bodyLarge)
+                Spacer(Modifier.height(6.dp))
+                Text(attemptedRowText, style = MaterialTheme.typography.bodyLarge)
             }
         }
 
@@ -295,7 +361,6 @@ fun LogmarTestScreen(
 
                 Spacer(Modifier.height(12.dp))
 
-                // SAME UI style for both: grey preview card
                 val previewText = when (inputMode) {
                     InputMode.SPEECH ->
                         if (spokenText.isBlank()) "Spoken text will appear here…" else spokenText
@@ -319,7 +384,7 @@ fun LogmarTestScreen(
                     )
                 }
 
-                // Hidden input field to capture keyboard typing, but keep UI consistent
+                // Hidden input field to capture keyboard typing
                 if (inputMode == InputMode.TYPING) {
                     Spacer(Modifier.height(8.dp))
 
@@ -344,7 +409,7 @@ fun LogmarTestScreen(
 
                 Spacer(Modifier.height(12.dp))
 
-                // Speak / Type + Submit row
+                // Speak/Type + Submit row
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -376,7 +441,12 @@ fun LogmarTestScreen(
                 Spacer(Modifier.height(12.dp))
 
                 Button(
-                    onClick = { navController.popBackStack() },
+                    onClick = {
+                        navController.navigate("home") {
+                            popUpTo("home") { inclusive = false }
+                            launchSingleTop = true
+                        }
+                    },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color.White,
@@ -399,7 +469,8 @@ fun LogmarTestScreen(
                             feedback = null
                             correctPerLine.clear()
                             savedToFirestore = false
-                            deviceLimitReached = false
+                            lastPassedRowIndex = null
+                            lastAttemptedRowIndex = null
                         },
                         modifier = Modifier.weight(1f),
                         colors = ButtonDefaults.buttonColors(
@@ -441,11 +512,25 @@ private fun CalibrationRequiredScreen(
             style = MaterialTheme.typography.bodyMedium
         )
         Spacer(Modifier.height(18.dp))
-        Button(onClick = onCalibrate, modifier = Modifier.fillMaxWidth()) {
+        Button(
+            onClick = onCalibrate,
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.White,
+                contentColor = Color.DarkGray
+            )
+        ) {
             Text("Calibrate now")
         }
         Spacer(Modifier.height(10.dp))
-        OutlinedButton(onClick = onExit, modifier = Modifier.fillMaxWidth()) {
+        Button(
+            onClick = onExit,
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.White,
+                contentColor = Color.DarkGray
+            )
+        ) {
             Text("Exit")
         }
     }
@@ -468,20 +553,53 @@ private fun buildLogmarRows(
     }
 }
 
-/** Keep only A–Z from any input (speech or typed). */
+@Composable
+private fun UnsupportedDeviceScreen(
+    message: String,
+    onExit: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text("Device not supported", style = MaterialTheme.typography.titleLarge)
+        Spacer(Modifier.height(10.dp))
+        Text(
+            text = message,
+            style = MaterialTheme.typography.bodyMedium
+        )
+        Spacer(Modifier.height(18.dp))
+        Button(
+            onClick = onExit,
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.White,
+                contentColor = Color.DarkGray
+            )
+        ) {
+            Text("Exit")
+        }
+    }
+}
+
+//Keep only A–Z from any input (speech or typed).
 private fun extractLetters(text: String): String =
     text.uppercase().filter { it in 'A'..'Z' }
 
-/** Normalize expected chart letters like "C D H K N" -> "CDHKN". */
+//Normalize expected chart letters like "C D H K N" -> "CDHKN".
 private fun normalizeLetters(rowLetters: String): String =
     rowLetters.uppercase().filter { it in 'A'..'Z' }
 
-/** Counts correct letters by position (expects 5 letters in order). */
+//Counts correct letters by position (expects 5 letters in order)
 private fun countCorrectByPosition(expected: String, user: String): Int =
     expected.zip(user).count { (e, s) -> e == s }
 
-/** Rough conversion shown to user (report limitation: not clinically calibrated). */
+//Rough conversion shown to user (report limitation: not clinically calibrated).
 private fun approxSnellen(logmar: Float): String {
     val denom = (20 * 10.0.pow(logmar.toDouble())).toInt().coerceAtLeast(10)
     return "20/$denom"
 }
+

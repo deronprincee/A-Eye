@@ -9,6 +9,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.example.aeye.ui.components.*
+import com.example.aeye.viewmodel.CalibrationViewModel
 import com.example.aeye.viewmodel.ResultsViewModel
 
 
@@ -20,6 +21,7 @@ import com.example.aeye.viewmodel.ResultsViewModel
 fun MainScreen(
     navController: NavController,
     resultsViewModel: ResultsViewModel,
+    calibrationViewModel: CalibrationViewModel,
     onOpenSettings: () -> Unit = { /* navController.navigate("settings") later */ },
     onTabSelected: (BottomTab) -> Unit = { /* optional callback */ }
 ) {
@@ -41,6 +43,7 @@ fun MainScreen(
             BottomTab.Home -> HomeScreen(
                 modifier = Modifier,
                 contentPadding = innerPadding,
+                calibrationViewModel = calibrationViewModel,
                 onTestClick = { route ->
                     navController.navigate(route)
                 }

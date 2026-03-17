@@ -59,7 +59,8 @@ fun MyAppNavigation(modifier: Modifier = Modifier, authViewModel: AuthViewModel)
         composable("home") {
             MainScreen(
                 navController = navController,
-                resultsViewModel = resultsViewModel
+                resultsViewModel = resultsViewModel,
+                calibrationViewModel = calibrationViewModel
             )
         }
         composable("snellen") {

@@ -1,7 +1,8 @@
 package com.example.aeye.ui.screens
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -11,6 +12,8 @@ import androidx.navigation.NavController
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Slider
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import com.example.aeye.viewmodel.CalibrationViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -19,60 +22,111 @@ fun CalibrationScreen(
     navController: NavController,
     calibrationViewModel: CalibrationViewModel
 ) {
-    val cardWidthMm = 53.98f
+    val cardWidthMm = 85.60f
+    val cardHeightMm = 53.98f
+    val cardAspectRatio = cardHeightMm / cardWidthMm
 
-    // This is dp, not px
-    var widthDp by remember { mutableStateOf(200f) } // starting guess (dp)
+    var frameWidthDp by remember { mutableStateOf(260f) }
 
-    Column(
+    var outerWidthPx by remember { mutableStateOf(0f) }
+    var outerHeightPx by remember { mutableStateOf(0f) }
+
+    var calibrationSubmitted by remember { mutableStateOf(false) }
+    val savedPxPerMm: Double? by calibrationViewModel.pxPerMm.collectAsState()
+
+    val borderThickness = 3.dp
+    val cornerRadius = 16.dp
+    val density = LocalDensity.current
+    val borderThicknessPx = with(density) { borderThickness.toPx() }
+
+    LaunchedEffect(savedPxPerMm, calibrationSubmitted) {
+        if (calibrationSubmitted && savedPxPerMm != null && savedPxPerMm!! > 0.0) {
+            navController.navigate("logmar") {
+                popUpTo("calibration") { inclusive = true }
+                launchSingleTop = true
+            }
+        }
+    }
+
+    BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.SpaceBetween,
-        horizontalAlignment = Alignment.CenterHorizontally
+            .padding(24.dp)
     ) {
+        val maxFrameWidthDp = maxWidth.value - 14f
+        val safeFrameWidthDp = frameWidthDp.coerceIn(140f, maxFrameWidthDp)
 
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("Screen Calibration", style = MaterialTheme.typography.headlineMedium)
-            Spacer(Modifier.height(8.dp))
-            Text(
-                "Place a bank card against your screen.\nAdjust the bar to match the card width.",
-                style = MaterialTheme.typography.bodyMedium
-            )
-        }
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.SpaceBetween,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
 
-        // Visual bar width is directly in dp (no conversion)
-        Box(
-            modifier = Modifier
-                .height(56.dp)
-                .width(widthDp.dp)
-                .background(MaterialTheme.colorScheme.primary)
-        )
-
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Slider(
-                value = widthDp,
-                onValueChange = { widthDp = it },
-                valueRange = 300f..900f,
-                modifier = Modifier.fillMaxWidth(),
-                colors = SliderDefaults.colors(
-                    thumbColor = Color.White,
-                    activeTrackColor = Color.LightGray,
-                    inactiveTrackColor = Color.DarkGray
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text("Screen Calibration", style = MaterialTheme.typography.headlineMedium)
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    "Place a bank card inside the rounded rectangle.\nAdjust the slider until the card fits exactly inside the border.",
+                    style = MaterialTheme.typography.bodyMedium
                 )
-            )
+            }
 
-            Spacer(Modifier.height(12.dp))
-
-            OutlinedButton(
-                onClick = {
-                    // Store dp per mm (NOT px/mm)
-                    val dpPerMm = widthDp / cardWidthMm
-                    calibrationViewModel.setCalibration(dpPerMm.toDouble())
-                    navController.navigate("logmar")
-                }
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
             ) {
-                Text("Confirm Calibration")
+                Box(
+                    modifier = Modifier
+                        .width(safeFrameWidthDp.dp)
+                        .aspectRatio(cardAspectRatio)
+                        .onGloballyPositioned { coordinates ->
+                            outerWidthPx = coordinates.size.width.toFloat()
+                            outerHeightPx = coordinates.size.height.toFloat()
+                        }
+                        .border(
+                            width = borderThickness,
+                            color = MaterialTheme.colorScheme.tertiary,
+                            shape = RoundedCornerShape(cornerRadius)
+                        )
+                )
+            }
+
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Slider(
+                    value = safeFrameWidthDp,
+                    onValueChange = { frameWidthDp = it },
+                    valueRange = 140f..maxFrameWidthDp,
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = SliderDefaults.colors(
+                        thumbColor = Color.White,
+                        activeTrackColor = Color.LightGray,
+                        inactiveTrackColor = Color.DarkGray
+                    )
+                )
+
+                Spacer(Modifier.height(12.dp))
+
+                OutlinedButton(
+                    onClick = {
+                        val innerWidthPx = (outerWidthPx - 2f * borderThicknessPx).coerceAtLeast(1f)
+                        val innerHeightPx = (outerHeightPx - 2f * borderThicknessPx).coerceAtLeast(1f)
+
+                        val pxPerMmFromWidth = innerWidthPx / cardHeightMm
+                        val pxPerMmFromHeight = innerHeightPx / cardWidthMm
+
+                        val pxPerMm = (pxPerMmFromWidth + pxPerMmFromHeight) / 2f
+
+                        calibrationSubmitted = true
+                        calibrationViewModel.setCalibration(pxPerMm.toDouble())
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.White,
+                        contentColor = Color.DarkGray
+                    )
+                ) {
+                    Text("Confirm Calibration")
+                }
             }
         }
     }

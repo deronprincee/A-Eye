@@ -20,7 +20,13 @@ class ResultsViewModel(
 
     fun saveResult(result: TestResult) {
         viewModelScope.launch {
-            repository.addResult(result)
+            try {
+                repository.addResult(result)
+                println("SAVE SUCCESS: $result")
+            } catch (e: Exception) {
+                e.printStackTrace()
+                println("SAVE FAILED: ${e.message}")
+            }
         }
     }
 
