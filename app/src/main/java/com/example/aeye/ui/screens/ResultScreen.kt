@@ -185,7 +185,6 @@ fun ResultScreen(
                         lastAttemptedRowLogmar = r.lastAttemptedRowLogmar,
                         lastPassedRowLogmar = r.lastPassedRowLogmar,
                         inputMode = r.inputMode,
-                        deviceLimitReached = r.deviceLimitReached,
                         onDelete = { pendingDeleteId = r.id }
                     )
                 }
@@ -264,7 +263,6 @@ private fun ResultCard(
     lastAttemptedRowLogmar: Double?,
     lastPassedRowLogmar: Double?,
     inputMode: String?,
-    deviceLimitReached: Boolean?,
     onDelete: () -> Unit
 ) {
     Card(
@@ -316,9 +314,6 @@ private fun ResultCard(
                 }
                 inputMode?.let {
                     Text("Input Mode: $it")
-                }
-                deviceLimitReached?.let {
-                    Text("Device Limit Reached: $it")
                 }
 
             }
