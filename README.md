@@ -8,4 +8,3 @@ An AI-powered application for android phones that predicts a user’s eyesight l
 
 ## INSTALLATION PROCESS
 Manual installation of this application is via GITHUB. Repo: [https://github.com/deronprincee/A-Eye]
-Android account installation (Deferred).
