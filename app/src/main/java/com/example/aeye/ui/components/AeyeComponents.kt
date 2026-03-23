@@ -54,7 +54,7 @@ fun AEyeTopBar(
                     Image(
                         painter = painterResource(id = R.drawable.setting),
                         contentDescription = "Settings",
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(30.dp)
                     )
                 }
             }
@@ -69,32 +69,31 @@ fun AEyeBottomBar(
     selectedTab: BottomTab,
     onTabSelected: (BottomTab) -> Unit
 ) {
-    val bottomNavigationItems = listOf(
-        BottomNavigationItem("Home", Icons.Filled.Home),
-        BottomNavigationItem("Test Results", Icons.Filled.Favorite),
-        BottomNavigationItem("Search", Icons.Filled.Search),
-        BottomNavigationItem("Eye Clinics", Icons.Filled.LocalHospital)
-    )
-
-    BottomAppBar {
-        BottomTab.values().forEach { tab ->
+    NavigationBar(
+        containerColor = MaterialTheme.colorScheme.primary
+    ) {
+        BottomTab.entries.forEach { tab ->
             NavigationBarItem(
-                icon = { Icon(tab.placeholderIcon, contentDescription = tab.label) },
-                label = { Text(tab.label) },
                 selected = selectedTab == tab,
-                onClick = { onTabSelected(tab) }
+                onClick = { onTabSelected(tab) },
+                icon = {
+                    Icon(
+                        imageVector = tab.placeholderIcon,
+                        contentDescription = tab.label
+                    )
+                },
+                label = {
+                    Text(text = tab.label)
+                },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = MaterialTheme.colorScheme.onPrimary,
+                    selectedTextColor = MaterialTheme.colorScheme.onPrimary,
+                    unselectedIconColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.65f),
+                    unselectedTextColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.65f),
+                    indicatorColor = MaterialTheme.colorScheme.secondary
+                )
             )
         }
-    }
-}
-
-// Handle navigation based on bottom bar selection
-fun handleBottomNavSelection(navController: NavController, tab: BottomTab) {
-    when (tab) {
-        BottomTab.Home -> navController.navigate("home")
-        BottomTab.Results -> navController.navigate("results")
-        BottomTab.Search -> navController.navigate("search")
-        BottomTab.Clinics -> navController.navigate("clinics")
     }
 }
 

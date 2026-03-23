@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
@@ -26,7 +27,6 @@ fun ResultScreen(
 ) {
     val allResults by resultsViewModel.results.collectAsState()
 
-    // ---------- FILTER STATE ----------
     val testTypes = remember {
         listOf("All", "LOGMAR_NEAR", "SNELLEN", "OTHER")
     }
@@ -37,21 +37,20 @@ fun ResultScreen(
     var startDateMillis by remember { mutableStateOf<Long?>(null) }
     var endDateMillis by remember { mutableStateOf<Long?>(null) }
 
-    // These are the filters actually applied when user presses Search
     var appliedTestType by remember { mutableStateOf("All") }
     var appliedStart by remember { mutableStateOf<Long?>(null) }
     var appliedEnd by remember { mutableStateOf<Long?>(null) }
 
-    // ---------- DATE PICKERS ----------
+    //DATE PICKERS
     var showStartPicker by remember { mutableStateOf(false) }
     var showEndPicker by remember { mutableStateOf(false) }
     val startPickerState = rememberDatePickerState()
     val endPickerState = rememberDatePickerState()
 
-    // ---------- DELETE CONFIRM ----------
+    //DELETE CONFIRM
     var pendingDeleteId by remember { mutableStateOf<String?>(null) }
 
-    // ---------- FILTERING ----------
+    //FILTERING
     val filtered = remember(allResults, appliedTestType, appliedStart, appliedEnd) {
         allResults.filter { r ->
             // NOTE: adjust field names to your actual TestResult model
@@ -63,190 +62,200 @@ fun ResultScreen(
         }
     }
 
-    Column(
+    val pageGrey = Color(0xFFEDEDED)
+
+    Box(
         modifier = modifier
             .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(14.dp)
+            .background(pageGrey)
+            .padding(horizontal = 20.dp)
     ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
 
-        Text(
-            text = "Test Results",
-            style = MaterialTheme.typography.headlineSmall,
-            color = MaterialTheme.colorScheme.tertiary
-        )
-
-        // ---------- TEST TYPE DROPDOWN ----------
-        ExposedDropdownMenuBox(
-            expanded = testTypeExpanded,
-            onExpandedChange = { testTypeExpanded = !testTypeExpanded }
         ) {
-            OutlinedTextField(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .menuAnchor(),
-                value = selectedTestType,
-                onValueChange = {},
-                readOnly = true,
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White,
-                    focusedBorderColor = MaterialTheme.colorScheme.tertiary
-                )
+
+            Text(
+                text = "Test Results",
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.primary
             )
-            ExposedDropdownMenu(
+
+            //TEST TYPE DROPDOWN
+            ExposedDropdownMenuBox(
                 expanded = testTypeExpanded,
-                onDismissRequest = { testTypeExpanded = false },
-                modifier = Modifier.background(Color.White)
+                onExpandedChange = { testTypeExpanded = !testTypeExpanded }
             ) {
-                testTypes.forEach { type ->
-                    DropdownMenuItem(
-                        text = { Text(type) },
+                OutlinedTextField(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .menuAnchor(),
+                    value = selectedTestType,
+                    onValueChange = {},
+                    readOnly = true,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = Color.White,
+                        unfocusedContainerColor = Color.White,
+                        focusedBorderColor = MaterialTheme.colorScheme.tertiary
+                    )
+                )
+                ExposedDropdownMenu(
+                    expanded = testTypeExpanded,
+                    onDismissRequest = { testTypeExpanded = false },
+                    modifier = Modifier.background(Color.White)
+                ) {
+                    testTypes.forEach { type ->
+                        DropdownMenuItem(
+                            text = { Text(type) },
+                            onClick = {
+                                selectedTestType = type
+                                testTypeExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
+
+            //DATE RANGE
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Button(
+                    onClick = { showStartPicker = true },
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.tertiary
+                    )
+                ) {
+                    Text(text = startDateMillis.formatAsDateOr("Start date"))
+                }
+
+                Button(
+                    onClick = { showEndPicker = true },
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.tertiary
+                    )
+                ) {
+                    Text(text = endDateMillis.formatAsDateOr("End date"))
+                }
+            }
+
+            //SEARCH BUTTON
+            Button(
+                onClick = {
+                    appliedTestType = selectedTestType
+
+                    // Normalize end date to include full day (optional)
+                    appliedStart = startDateMillis
+                    appliedEnd = endDateMillis?.let { it + 86_399_000L } // up to 23:59:59
+                },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.tertiary
+                )
+            ) {
+                Text("Search")
+            }
+
+            HorizontalDivider()
+
+            //RESULTS LIST
+            if (filtered.isEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("No results found for the selected filters.")
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    items(filtered, key = { it.id }) { r ->
+                        ResultCard(
+                            testName = r.testType,
+                            dateText = r.createdAtMillis?.formatAsDateTime() ?: "Date unavailable",
+                            finalLogmar = r.finalLogmar,
+                            snellenApprox = r.snellenApprox,
+                            totalLetters = r.totalLetters,
+                            totalCorrectLetters = r.totalCorrectLetters,
+                            correctPerLine = r.correctPerLine,
+                            pxPerMm = r.pxPerMm,
+                            lastAttemptedRowLogmar = r.lastAttemptedRowLogmar,
+                            lastPassedRowLogmar = r.lastPassedRowLogmar,
+                            inputMode = r.inputMode,
+                            onDelete = { pendingDeleteId = r.id }
+                        )
+                    }
+                }
+            }
+        }
+
+        //START DATE PICKER
+        if (showStartPicker) {
+            DatePickerDialog(
+                onDismissRequest = { showStartPicker = false },
+                confirmButton = {
+                    TextButton(
                         onClick = {
-                            selectedTestType = type
-                            testTypeExpanded = false
+                            startDateMillis = startPickerState.selectedDateMillis
+                            showStartPicker = false
                         }
-                    )
+                    ) { Text("OK") }
+                },
+                dismissButton = { TextButton(onClick = { showStartPicker = false }) { Text("Cancel") } }
+            ) {
+                DatePicker(state = startPickerState)
+            }
+        }
+
+        //END DATE PICKER
+        if (showEndPicker) {
+            DatePickerDialog(
+                onDismissRequest = { showEndPicker = false },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            endDateMillis = endPickerState.selectedDateMillis
+                            showEndPicker = false
+                        }
+                    ) { Text("OK") }
+                },
+                dismissButton = { TextButton(onClick = { showEndPicker = false }) { Text("Cancel") } }
+            ) {
+                DatePicker(state = endPickerState)
+            }
+        }
+
+        //DELETE CONFIRM
+        if (pendingDeleteId != null) {
+            AlertDialog(
+                onDismissRequest = { pendingDeleteId = null },
+                title = { Text("Delete result?") },
+                text = { Text("This cannot be undone.") },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            val id = pendingDeleteId!!
+                            pendingDeleteId = null
+                            resultsViewModel.deleteResult(id)
+                        }
+                    ) { Text("Delete") }
+                },
+                dismissButton = {
+                    TextButton(onClick = { pendingDeleteId = null }) { Text("Cancel") }
                 }
-            }
-        }
-
-        // ---------- DATE RANGE ----------
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Button(
-                onClick = { showStartPicker = true },
-                modifier = Modifier.weight(1f),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.White,
-                    contentColor = Color.DarkGray
-                )
-            ) {
-                Text(text = startDateMillis.formatAsDateOr("Start date"))
-            }
-
-            Button(
-                onClick = { showEndPicker = true },
-                modifier = Modifier.weight(1f),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.White,
-                    contentColor = Color.DarkGray
-                )
-            ) {
-                Text(text = endDateMillis.formatAsDateOr("End date"))
-            }
-        }
-
-        // ---------- SEARCH BUTTON ----------
-        Button(
-            onClick = {
-                appliedTestType = selectedTestType
-
-                // Normalize end date to include full day (optional)
-                appliedStart = startDateMillis
-                appliedEnd = endDateMillis?.let { it + 86_399_000L } // up to 23:59:59
-            },
-            modifier = Modifier.fillMaxWidth(),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color.White,
-                contentColor = Color.DarkGray
             )
-        ) {
-            Text("Search")
         }
-
-        HorizontalDivider()
-
-        // ---------- RESULTS LIST ----------
-        if (filtered.isEmpty()) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("No results found for the selected filters.")
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                items(filtered, key = { it.id }) { r ->
-                    ResultCard(
-                        testName = r.testType,
-                        dateText = r.createdAtMillis?.formatAsDateTime() ?: "Date unavailable",
-                        finalLogmar = r.finalLogmar,
-                        snellenApprox = r.snellenApprox,
-                        totalLetters = r.totalLetters,
-                        totalCorrectLetters = r.totalCorrectLetters,
-                        correctPerLine = r.correctPerLine,
-                        pxPerMm = r.pxPerMm,
-                        lastAttemptedRowLogmar = r.lastAttemptedRowLogmar,
-                        lastPassedRowLogmar = r.lastPassedRowLogmar,
-                        inputMode = r.inputMode,
-                        onDelete = { pendingDeleteId = r.id }
-                    )
-                }
-            }
-        }
-    }
-
-    // ---------- START DATE PICKER ----------
-    if (showStartPicker) {
-        DatePickerDialog(
-            onDismissRequest = { showStartPicker = false },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        startDateMillis = startPickerState.selectedDateMillis
-                        showStartPicker = false
-                    }
-                ) { Text("OK") }
-            },
-            dismissButton = { TextButton(onClick = { showStartPicker = false }) { Text("Cancel") } }
-        ) {
-            DatePicker(state = startPickerState)
-        }
-    }
-
-    // ---------- END DATE PICKER ----------
-    if (showEndPicker) {
-        DatePickerDialog(
-            onDismissRequest = { showEndPicker = false },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        endDateMillis = endPickerState.selectedDateMillis
-                        showEndPicker = false
-                    }
-                ) { Text("OK") }
-            },
-            dismissButton = { TextButton(onClick = { showEndPicker = false }) { Text("Cancel") } }
-        ) {
-            DatePicker(state = endPickerState)
-        }
-    }
-
-    // ---------- DELETE CONFIRM ----------
-    if (pendingDeleteId != null) {
-        AlertDialog(
-            onDismissRequest = { pendingDeleteId = null },
-            title = { Text("Delete result?") },
-            text = { Text("This cannot be undone.") },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        val id = pendingDeleteId!!
-                        pendingDeleteId = null
-                        resultsViewModel.deleteResult(id)
-                    }
-                ) { Text("Delete") }
-            },
-            dismissButton = {
-                TextButton(onClick = { pendingDeleteId = null }) { Text("Cancel") }
-            }
-        )
     }
 }
 
@@ -325,7 +334,7 @@ private fun ResultCard(
     }
 }
 
-// ---------- Date helpers ----------
+//Date helpers
 private fun Long?.formatAsDateOr(fallback: String): String {
     if (this == null) return fallback
     val df = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())

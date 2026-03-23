@@ -8,6 +8,7 @@ import androidx.navigation.NavController
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.material.icons.Icons
 import com.example.aeye.ui.components.*
 import com.example.aeye.viewmodel.CalibrationViewModel
 import com.example.aeye.viewmodel.ResultsViewModel
@@ -52,7 +53,10 @@ fun MainScreen(
                 resultsViewModel = resultsViewModel,
                 modifier = Modifier.padding(innerPadding)
             )
-            BottomTab.Search -> PlaceholderScreen("Chat (Coming Soon)")
+            BottomTab.Search -> ChatbotScreen(
+                resultsViewModel = resultsViewModel,
+                contentPadding = innerPadding
+            )
             BottomTab.Clinics -> PlaceholderScreen("Clinics (Coming Soon)")
         }
     }
@@ -64,10 +68,10 @@ enum class BottomTab(
     val placeholderIcon: ImageVector,
     val route: String
 ) {
-    Home("Home", androidx.compose.material.icons.Icons.Filled.Home, "home"),
-    Results("Results", androidx.compose.material.icons.Icons.Filled.Favorite, "results"),
-    Search("Search", androidx.compose.material.icons.Icons.Filled.Chat, "chat"),
-    Clinics("Clinics", androidx.compose.material.icons.Icons.Filled.LocalHospital, "clinics")
+    Home("Home", Icons.Filled.Home, "home"),
+    Results("Results", Icons.Filled.PieChart, "results"),
+    Search("Search", Icons.Filled.Search, "chat"),
+    Clinics("Clinics", Icons.Filled.LocalHospital, "clinics")
 }
 
 @Composable

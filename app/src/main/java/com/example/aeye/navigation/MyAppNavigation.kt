@@ -8,8 +8,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.aeye.data.Firestore
-import com.example.aeye.ui.components.handleBottomNavSelection
-import com.example.aeye.ui.screens.BottomTab
 import com.example.aeye.ui.screens.CalibrationScreen
 import com.example.aeye.ui.screens.LoginPage
 import com.example.aeye.ui.screens.SignupPage

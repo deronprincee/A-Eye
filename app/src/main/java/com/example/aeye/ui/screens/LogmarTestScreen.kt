@@ -84,7 +84,7 @@ fun LogmarTestScreen(
 
     val rows = remember {
         buildLogmarRows(
-            logmarValues = listOf(1.0f, 0.9f, 0.8f, 0.7f, 0.6f, 0.5f, 0.4f, 0.3f, 0.2f, 0.1f, 0.0f),
+            logmarValues = listOf(1.0f, 0.9f, 0.8f, 0.7f, 0.6f, 0.5f, 0.4f),
             sloanLetters = sloanLetters
         )
     }
@@ -196,16 +196,6 @@ fun LogmarTestScreen(
         typedText = ""
 
         val nextIndex = rowIndex + 1
-
-        if (nextIndex <= rows.lastIndex) {
-            val (_, nextWouldHitLimit) = calibratedFontSizeSp(rows[nextIndex].logmar)
-
-            if (nextWouldHitLimit) {
-                deviceLimitReached = true
-                finished = true
-                return
-            }
-        }
 
         if (rowIndex < rows.lastIndex) rowIndex++ else finished = true
     }
